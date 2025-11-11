@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import bookService from "../../../services/bookService";
 
 const BookPage = () => {
+  const navigate = useNavigate();
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 10, totalPages: 0 });
@@ -250,6 +252,15 @@ const BookPage = () => {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-center space-x-2">
+                          <button 
+                            onClick={() => navigate(`/admin/chapters/${book.id}`)}
+                            className="text-green-600 hover:text-green-800 font-semibold flex items-center space-x-1"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            <span>Chapters</span>
+                          </button>
                           <button 
                             onClick={() => handleEdit(book)}
                             className="text-blue-600 hover:text-blue-800 font-semibold flex items-center space-x-1"

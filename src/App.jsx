@@ -9,6 +9,7 @@ import NewsDetailPage from './pages/news/index';
 import LearningPage from './pages/learning/index';
 import LearningDetailPage from './pages/learning/detail/index';
 import BookPage from './pages/admin/learning/BookPage';
+import ChapterPage from './pages/admin/learning/ChapterPage';
 function App() {
   return (
     // <Router>
@@ -25,7 +26,8 @@ function App() {
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="users" element={<UsersPage />} />
 
-          <Route path="book" element={<BookPage />} />
+          <Route path="books" element={<BookPage />} />
+          <Route path="chapters/:bookId" element={<ChapterPage />} />
           {/* Add more admin routes here */}
         </Route>
       </Routes>
