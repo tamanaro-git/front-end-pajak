@@ -42,6 +42,8 @@ const ChapterPage = () => {
       const chaptersResponse = await chapterService.getChaptersByBook(bookId);
       if (chaptersResponse.status === 'success') {
         setChapters(chaptersResponse.data.chapters || []);
+        console.log(chaptersResponse);
+        
       }
     } catch (error) {
       showNotification("error", error.message || "Gagal memuat data");
