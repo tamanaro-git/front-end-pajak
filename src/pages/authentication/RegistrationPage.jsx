@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import authService from "../../services/authService";
+import { GoogleLogin } from '@react-oauth/google';
 
 const RegistrationPage = () => {
   const navigate = useNavigate();
