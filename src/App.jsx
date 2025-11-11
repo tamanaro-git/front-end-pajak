@@ -5,7 +5,7 @@ import RegistrationPage from './pages/authentication/RegistrationPage';
 import AdminLayout from './layouts/AdminLayout';
 import DashboardPage from './pages/admin/DashboardPage';
 import UsersPage from './pages/admin/UsersPage';
-
+import NewsDetailPage from './pages/news/index';
 function App() {
   return (
     // <Router>
@@ -14,7 +14,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegistrationPage />} />
-
+        <Route path='/news' element={<NewsDetailPage />} />
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="dashboard" element={<DashboardPage />} />
