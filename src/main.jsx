@@ -1,12 +1,17 @@
 import { createRoot } from 'react-dom/client'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 import './index.css'
 import App from './App.jsx'
 import { BrowserRouter } from 'react-router-dom'
 
+// Get Google Client ID from environment variable
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '642312411197-4egpdk0otmslmu1u44mmca4v2msu3fb8.apps.googleusercontent.com';
+
+
 createRoot(document.getElementById('root')).render(
-  <>
-    <BrowserRouter>
+  <BrowserRouter>
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <App />
-    </BrowserRouter>
-  </>,
+    </GoogleOAuthProvider>
+  </BrowserRouter>,
 )
