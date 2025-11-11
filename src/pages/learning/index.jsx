@@ -1,7 +1,43 @@
 
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import bookService from "../../services/bookService";
+
 const LearningPage = () => {
+  const navigate = useNavigate();
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 9, totalPages: 0 });
+
+  useEffect(() => {
+    fetchBooks();
+  }, []);
+
+  const fetchBooks = async (page = 1) => {
+    setLoading(true);
+    try {
+      const response = await bookService.getAllBooks({
+        page,
+        limit: 9
+      });
+      
+      if (response.status === 'success') {
+        setBooks(response.data.books || []);
+        setPagination(response.data.pagination || { total: 0, page: 1, limit: 9, totalPages: 0 });
+      }
+    } catch (error) {
+      console.error('Error fetching books:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBookClick = (bookId) => {
+    navigate(`/learning/${bookId}`);
+  };
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white">{/* ...existing code... */}
       {/* Hero Section */}
       <section className="relative bg-primary-dark text-white py-20 overflow-hidden">
         {/* Background Decorative Icons */}
@@ -86,153 +122,188 @@ const LearningPage = () => {
       {/* Additional Sections Can Go Here */}
       <section className="max-w-7xl mx-auto px-6 py-12">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-primary mb-4">Program Pelatihan Tersedia</h2>
-          <p className="text-secondary">Ikuti berbagai program pelatihan pajak yang kami sediakan</p>
+          <h2 className="text-3xl font-bold text-primary mb-4">Koleksi Buku Pembelajaran</h2>
+          <p className="text-secondary">Pilih buku yang ingin Anda pelajari dan tingkatkan pengetahuan perpajakan Anda</p>
         </div>
 
-        {/* Learning Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {[
-            {
-              title: "Pelatihan Pajak untuk Pemula",
-              description: "Memahami dasar-dasar perpajakan untuk individu dan UMKM",
-              date: "18 Sep 25, 09.00 - 12.00 WIB",
-              location: "Pelatihan Online",
-              price: "Gratis",
-              status: "Terdahulu",
-              bgColor: "bg-blue-50"
-            },
-            {
-              title: "Workshop SPT Tahunan & Pelaporan Pajak",
-              description: "Cara mudah mengisi dan melaporkan SPT Tahunan dengan benar",
-              date: "28 Feb 25, 15.00 - 17.00 WIB",
-              location: "Pelatihan Online",
-              price: "Gratis",
-              status: "Terdahulu",
-              bgColor: "bg-gray-900"
-            },
-            {
-              title: "Strategi Optimalisasi Pajak Bisnis",
-              description: "Tips dan trik mengoptimalkan kewajiban pajak perusahaan secara legal",
-              date: "13 Feb 25, 13.00 - 15.00 WIB",
-              location: "Pelatihan Online",
-              price: "Gratis",
-              status: "Terdahulu",
-              bgColor: "bg-gray-900"
-            },
-            {
-              title: "Pajak E-Commerce & Digital",
-              description: "Panduan lengkap perpajakan untuk bisnis online dan e-commerce",
-              date: "25 Mar 25, 10.00 - 13.00 WIB",
-              location: "Pelatihan Online",
-              price: "Gratis",
-              status: "Tersedia",
-              bgColor: "bg-blue-50"
-            },
-            {
-              title: "Tax Planning untuk Korporat",
-              description: "Strategi perencanaan pajak yang efektif untuk perusahaan",
-              date: "30 Mar 25, 14.00 - 17.00 WIB",
-              location: "Pelatihan Online",
-              price: "Gratis",
-              status: "Tersedia",
-              bgColor: "bg-gray-900"
-            },
-            {
-              title: "Audit Pajak & Compliance",
-              description: "Memahami proses audit pajak dan cara mempersiapkannya",
-              date: "5 Apr 25, 09.00 - 12.00 WIB",
-              location: "Pelatihan Online",
-              price: "Gratis",
-              status: "Tersedia",
-              bgColor: "bg-blue-50"
-            }
-          ].map((event, index) => (
-            <div 
-              key={index}
-              className="relative"
-            >
-             
-              {/* Main Card */}
-              <div className="relative bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-                {/* Image/Header Section */}
-                <div className={`${event.bgColor} ${event.bgColor === 'bg-gray-900' ? 'text-white' : 'text-primary'} p-6 h-64 flex flex-col justify-between relative overflow-hidden`}>
-                  {/* Decorative Pattern */}
-                  <div className="absolute inset-0 opacity-10">
-                    <div className="absolute top-0 right-0 w-32 h-32 border-4 border-current transform rotate-45"></div>
-                    <div className="absolute bottom-0 left-0 w-24 h-24 border-4 border-current transform -rotate-12"></div>
-                  </div>
-                  
-                  <div className="relative z-10">
-                    <div className="flex items-center justify-between mb-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        event.bgColor === 'bg-gray-900' 
-                          ? 'bg-blue-500 text-white' 
-                          : 'bg-primary text-white'
-                      }`}>
-                        JOIN INSIGHT
-                      </span>
-                    </div>
-                    <h3 className="text-2xl font-bold leading-tight">
-                      {event.title}
-                    </h3>
-                  </div>
+        {/* Loading State */}
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div>
+          </div>
+        ) : books.length === 0 ? (
+          <div className="text-center py-20">
+            <svg className="w-24 h-24 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">Belum Ada Buku</h3>
+            <p className="text-gray-500">Buku pembelajaran akan segera tersedia</p>
+          </div>
+        ) : (
+          <>
+            {/* Books Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {books.map((book, index) => {
+                const bgColors = ['bg-blue-50', 'bg-gray-900', 'bg-purple-50'];
+                const bgColor = bgColors[index % bgColors.length];
+                const isLight = bgColor !== 'bg-gray-900';
+                
+                return (
+                  <div 
+                    key={book.id}
+                    className="relative cursor-pointer"
+                    onClick={() => handleBookClick(book.id)}
+                  >
+                    {/* Main Card */}
+                    <div className="relative bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+                      {/* Image/Header Section */}
+                      <div className={`${bgColor} ${isLight ? 'text-primary' : 'text-white'} p-6 h-64 flex flex-col justify-between relative overflow-hidden`}>
+                        {/* Decorative Pattern */}
+                        <div className="absolute inset-0 opacity-10">
+                          <svg className="absolute top-4 right-4 w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                          </svg>
+                          <div className="absolute bottom-0 left-0 w-24 h-24 border-4 border-current transform -rotate-12"></div>
+                        </div>
+                        
+                        <div className="relative z-10">
+                          <div className="flex items-center justify-between mb-4">
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              isLight 
+                                ? 'bg-primary text-white' 
+                                : 'bg-blue-500 text-white'
+                            }`}>
+                              BUKU PEMBELAJARAN
+                            </span>
+                            {book.chapters && book.chapters.length > 0 && (
+                              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                isLight ? 'bg-green-100 text-green-700' : 'bg-green-500 text-white'
+                              }`}>
+                                {book.chapters.length} BAB
+                              </span>
+                            )}
+                          </div>
+                          <h3 className="text-2xl font-bold leading-tight line-clamp-3">
+                            {book.title}
+                          </h3>
+                        </div>
 
-                  {/* Speaker/Info at bottom */}
-                  <div className="relative z-10">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-12 h-12 bg-white/20 rounded-full"></div>
-                      <div>
-                        <p className="text-sm font-semibold">Expert Speaker</p>
-                        <p className="text-xs opacity-75">Konsultan Pajak</p>
+                        {/* Author Info at bottom */}
+                        <div className="relative z-10">
+                          <div className="flex items-center space-x-2">
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${
+                              isLight ? 'bg-primary text-white' : 'bg-white/20'
+                            }`}>
+                              {book.author ? book.author.charAt(0).toUpperCase() : 'A'}
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold">{book.author || 'Anonymous'}</p>
+                              <p className="text-xs opacity-75">Penulis</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Content Section */}
+                      <div className="p-6">
+                        <h4 className="text-xl font-bold text-primary mb-3 line-clamp-2">
+                          {book.title}
+                        </h4>
+
+                        {/* Description */}
+                        {book.description && (
+                          <p className="text-secondary text-sm mb-4 line-clamp-3">
+                            {book.description}
+                          </p>
+                        )}
+
+                        {/* Stats */}
+                        <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                          <div className="flex items-center text-secondary text-sm">
+                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <span>{book.chapters?.length || 0} Chapters</span>
+                          </div>
+                          <div className="flex items-center text-green-600 font-semibold text-sm">
+                            <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                            Gratis
+                          </div>
+                        </div>
+
+                        {/* Read Button */}
+                        <button 
+                          onClick={() => handleBookClick(book.id)}
+                          className="w-full mt-4 bg-primary hover:bg-primary-dark text-white py-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                          </svg>
+                          <span>Baca Sekarang</span>
+                        </button>
                       </div>
                     </div>
                   </div>
-                </div>
-
-                {/* Content Section */}
-                <div className="p-6">
-                  <h4 className="text-xl font-bold text-primary mb-4">
-                    {event.title}
-                  </h4>
-
-                  {/* Status Badge */}
-                  <div className="mb-4">
-                    <span className={`inline-block px-4 py-1 rounded-full text-sm font-medium ${
-                      event.status === 'Tersedia' 
-                        ? 'bg-green-100 text-green-700' 
-                        : 'bg-gray-200 text-gray-600'
-                    }`}>
-                      {event.status}
-                    </span>
-                  </div>
-
-                  {/* Date & Time */}
-                  <div className="space-y-2 mb-4">
-                    <p className="text-secondary text-sm">{event.date}</p>
-                  </div>
-
-                  {/* Location & Price */}
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                    <div className="flex items-center text-secondary text-sm">
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      </svg>
-                      <span>{event.location}</span>
-                    </div>
-                    <span className="inline-flex items-center text-green-600 font-semibold text-sm">
-                      <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      {event.price}
-                    </span>
-                  </div>
-                </div>
-              </div>
+                );
+              })}
             </div>
-          ))}
-        </div>
 
+            {/* Pagination */}
+            {pagination.totalPages > 1 && (
+              <div className="flex justify-center items-center mt-12 space-x-2">
+                <button
+                  onClick={() => fetchBooks(pagination.page - 1)}
+                  disabled={pagination.page === 1}
+                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-neutral-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Previous
+                </button>
+                
+                <div className="flex space-x-2">
+                  {[...Array(pagination.totalPages)].map((_, i) => (
+                    <button
+                      key={i + 1}
+                      onClick={() => fetchBooks(i + 1)}
+                      className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                        pagination.page === i + 1
+                          ? 'bg-primary text-white'
+                          : 'border border-gray-300 hover:bg-neutral-light'
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => fetchBooks(pagination.page + 1)}
+                  disabled={pagination.page === pagination.totalPages}
+                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-neutral-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
+        )}
+
+        <style>{`
+          .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          }
+          
+          .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          }
+        `}</style>
       </section>
     </div>
   );
