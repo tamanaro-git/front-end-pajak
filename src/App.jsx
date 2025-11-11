@@ -10,6 +10,10 @@ import LearningPage from './pages/learning/index';
 import LearningDetailPage from './pages/learning/detail/index';
 import BookPage from './pages/admin/learning/BookPage';
 import ChapterPage from './pages/admin/learning/ChapterPage';
+import SubchapterPage from './pages/admin/learning/SubchapterPage';
+import AddSubchapter from './pages/admin/learning/AddSubchapter';
+import UpdateSubchapter from './pages/admin/learning/UpdateSubchapter';
+
 function App() {
   return (
     // <Router>
@@ -28,6 +32,9 @@ function App() {
 
           <Route path="books" element={<BookPage />} />
           <Route path="chapters/:bookId" element={<ChapterPage />} />
+          <Route path="subchapters/:chapterId" element={<SubchapterPage />} />
+          <Route path="subchapters/:chapterId/add" element={<AddSubchapter />} />
+          <Route path="subchapters/:chapterId/edit/:subchapterId" element={<UpdateSubchapter />} />
           {/* Add more admin routes here */}
         </Route>
       </Routes>

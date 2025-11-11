@@ -351,6 +351,15 @@ const ChapterPage = () => {
                 {/* Actions */}
                 <div className="flex items-center space-x-2 shrink-0">
                   <button
+                    onClick={() => navigate(`/admin/subchapters/${chapter.id}`)}
+                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                    title="Manage Subchapters"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                  </button>
+                  <button
                     onClick={() => handleEdit(chapter)}
                     className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                     title="Edit Chapter"
