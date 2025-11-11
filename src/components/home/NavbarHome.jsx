@@ -57,7 +57,7 @@ const NavbarHome = () => {
             </button>
           </div>
 
-          <a href="#" className="hover:text-secondary bg-primary py-3 px-5 rounded-2xl">Log In</a>
+          <a href="#" className="hover:text-secondary bg-neutral-light text-primary-dark py-2 px-5 rounded-2xl">Log In</a>
           
           <button className="bg-primary-dark hover:bg-opacity-80 text-white px-6 py-2 rounded-full font-medium transition-colors">
             Daftar Sekarang
