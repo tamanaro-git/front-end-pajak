@@ -10,6 +10,7 @@ const authService = {
       if (response.data.data.token) {
         localStorage.setItem('token', response.data.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.data.user));
+        localStorage.setItem('role', response.data.data.user.role);
       }
       
       return response.data;
