@@ -20,6 +20,7 @@ import ManagementUserSuperAdmin from './pages/admin/management-user/SuperAdminPa
 import NewsPage from './pages/admin/journalist/NewsPage';
 import AddNewsPage from './pages/admin/journalist/AddNewsPage';
 import UpdateNewsPage from './pages/admin/journalist/UpdateNewsPage';
+import ManagementUserAdminNews from './pages/admin/management-user/AdminNewsPage';
 function App() {
   return (
     // <Router>
@@ -64,6 +65,8 @@ function App() {
               </ProtectedRoute>
             } 
           />
+
+          <Route path="users-news" element={<ManagementUserAdminNews />} />
 
           {/* Learning Management - Admin & Manager */}
           <Route path="books" element={

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const NavbarHome = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -39,10 +40,10 @@ const NavbarHome = () => {
 
         {/* Desktop Navigation Menu */}
         <div className="hidden lg:flex items-center space-x-8">
-          <a href="#" className="hover:text-secondary">Home</a>
-          <a href="#" className="hover:text-secondary">Highlight</a>
-          <a href="#" className="hover:text-secondary">Insight</a>
-          {/* <a href="#" className="hover:text-secondary">Login</a> */}
+          <Link to="/" className="hover:text-secondary">Home</Link>
+          <Link to="/learning" className="hover:text-secondary">Learning</Link>
+          <Link to="/news" className="hover:text-secondary">Spotlight</Link>
+          {/* <Link to="/login" className="hover:text-secondary">Login</Link> */}
         </div>
 
         {/* Desktop Right Side Actions */}
@@ -57,11 +58,11 @@ const NavbarHome = () => {
             </button>
           </div>
 
-          <a href="#" className="hover:text-secondary bg-neutral-light text-primary-dark py-2 px-5 rounded-2xl">Log In</a>
-          
-          <button className="bg-primary-dark hover:bg-opacity-80 text-white px-6 py-2 rounded-full font-medium transition-colors">
+          <Link to="/login" className="hover:text-secondary bg-neutral-light text-primary-dark py-2 px-5 rounded-2xl">Log In</Link>
+
+          <Link to="/register" className="bg-primary hover:bg-opacity-80 text-white px-6 py-2 rounded-full font-medium transition-colors">
             Daftar Sekarang
-          </button>
+          </Link>
         </div>
       </div>
 
