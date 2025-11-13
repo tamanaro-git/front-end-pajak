@@ -21,6 +21,9 @@ import NewsPage from './pages/admin/journalist/NewsPage';
 import AddNewsPage from './pages/admin/journalist/AddNewsPage';
 import UpdateNewsPage from './pages/admin/journalist/UpdateNewsPage';
 import ManagementUserAdminNews from './pages/admin/management-user/AdminNewsPage';
+import OpinionPage from './pages/admin/users/OpinionPage';
+import AddOpinionPage from './pages/admin/users/AddOpinionPage';
+import UpdateOpinionPage from './pages/admin/users/UpdateOpinionPage';
 function App() {
   return (
     // <Router>
@@ -82,6 +85,11 @@ function App() {
           <Route path="news" element={<NewsPage />} />
           <Route path="news/add" element={<AddNewsPage />} />
           <Route path="news/edit/:artikelId" element={<UpdateNewsPage />} />
+
+          {/* Opinion Management */}
+          <Route path="opinions" element={<OpinionPage />} />
+          <Route path="opinions/add" element={<AddOpinionPage />} />
+          <Route path="opinions/edit/:id" element={<UpdateOpinionPage />} />
         </Route>
       </Routes>
     // </Router>
