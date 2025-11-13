@@ -72,7 +72,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         </svg>
       ),
       path: "/admin/news",
-      roles: ['Admin', 'Manager']
+      roles: ['super-admin', 'Manager']
     },
     {
       title: "Settings",

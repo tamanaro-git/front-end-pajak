@@ -17,6 +17,9 @@ import SuperAdminPage from './pages/admin/management-user/SuperAdminPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import ManagementUserSuperAdmin from './pages/admin/management-user/SuperAdminPage';
+import NewsPage from './pages/admin/journalist/NewsPage';
+import AddNewsPage from './pages/admin/journalist/AddNewsPage';
+import UpdateNewsPage from './pages/admin/journalist/UpdateNewsPage';
 function App() {
   return (
     // <Router>
@@ -72,6 +75,10 @@ function App() {
           <Route path="subchapters/:chapterId" element={<SubchapterPage />} />
           <Route path="subchapters/:chapterId/add" element={<AddSubchapter />} />
           <Route path="subchapters/:chapterId/edit/:subchapterId" element={<UpdateSubchapter />} />
+
+          <Route path="news" element={<NewsPage />} />
+          <Route path="news/add" element={<AddNewsPage />} />
+          <Route path="news/edit/:artikelId" element={<UpdateNewsPage />} />
         </Route>
       </Routes>
     // </Router>
