@@ -20,10 +20,17 @@ const UpdateSubchapter = () => {
   const [loadingData, setLoadingData] = useState(true);
   const [notification, setNotification] = useState({ show: false, type: "", message: "" });
   
+  // Modal states for image/video
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  const [imageUrl, setImageUrl] = useState('');
+  const [videoUrl, setVideoUrl] = useState('');
+  
   const [formData, setFormData] = useState({
     title: "",
     content: "",
     resume: "",
+    regulation: "",
     orderIndex: 1
   });
 
@@ -58,14 +65,15 @@ const UpdateSubchapter = () => {
 
         const subchapterResponse = await subchapterService.getSubchapterById(subchapterId);
         if (subchapterResponse.status === 'success') {
-          const data = subchapterResponse.data;
+          const subchapterData = subchapterResponse.data;
           setFormData({
-            title: data.title,
-            content: data.content || "",
-            resume: data.resume || "",
-            orderIndex: data.orderIndex
+            title: subchapterData.title || "",
+            content: subchapterData.content || "",
+            resume: subchapterData.resume || "",
+            regulation: subchapterData.regulation || "",
+            orderIndex: subchapterData.orderIndex || 0
           });
-          editor?.commands.setContent(data.content || '');
+          editor?.commands.setContent(subchapterData.content || '');
         }
       } catch (error) {
         showNotification("error", error.message || "Gagal memuat data");
@@ -105,6 +113,42 @@ const UpdateSubchapter = () => {
       showNotification("error", error.message || "Gagal mengupdate subchapter!");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handle insert image
+  const handleInsertImage = () => {
+    if (imageUrl.trim()) {
+      editor?.chain().focus().setImage({ src: imageUrl }).run();
+      setImageUrl('');
+      setShowImageModal(false);
+      showNotification("success", "Gambar berhasil ditambahkan!");
+    }
+  };
+
+  // Handle insert video (iframe for YouTube/Vimeo)
+  const handleInsertVideo = () => {
+    if (videoUrl.trim()) {
+      let embedUrl = videoUrl;
+      
+      // Convert YouTube URL to embed
+      if (videoUrl.includes('youtube.com/watch')) {
+        const videoId = videoUrl.split('v=')[1]?.split('&')[0];
+        embedUrl = `https://www.youtube.com/embed/${videoId}`;
+      } else if (videoUrl.includes('youtu.be/')) {
+        const videoId = videoUrl.split('youtu.be/')[1]?.split('?')[0];
+        embedUrl = `https://www.youtube.com/embed/${videoId}`;
+      }
+      
+      // Insert iframe HTML
+      const iframeHtml = `<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; margin: 1rem 0;">
+        <iframe src="${embedUrl}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allowfullscreen></iframe>
+      </div>`;
+      
+      editor?.chain().focus().insertContent(iframeHtml).run();
+      setVideoUrl('');
+      setShowVideoModal(false);
+      showNotification("success", "Video berhasil ditambahkan!");
     }
   };
 
@@ -204,6 +248,319 @@ const UpdateSubchapter = () => {
           </p>
         </div>
 
+        {/* TipTap Editor */}
+        <div>
+          <label className="block text-sm font-semibold text-primary mb-2">
+            Konten Subchapter
+          </label>
+          
+          {/* Toolbar - Enhanced */}
+          <div className="border-2 border-gray-300 rounded-t-lg bg-gradient-to-r from-gray-50 to-gray-100 p-3">
+            {/* Row 1: Text Formatting */}
+            <div className="flex flex-wrap gap-1 mb-2 pb-2 border-b border-gray-300">
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().toggleBold().run()}
+                className={`px-3 py-2 rounded-lg hover:bg-white transition-all font-bold ${
+                  editor?.isActive('bold') ? 'bg-blue-500 text-white shadow-md' : 'bg-white'
+                }`}
+                title="Bold (Ctrl+B)"
+              >
+                B
+              </button>
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().toggleItalic().run()}
+                className={`px-3 py-2 rounded-lg hover:bg-white transition-all italic ${
+                  editor?.isActive('italic') ? 'bg-blue-500 text-white shadow-md' : 'bg-white'
+                }`}
+                title="Italic (Ctrl+I)"
+              >
+                I
+              </button>
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().toggleUnderline().run()}
+                className={`px-3 py-2 rounded-lg hover:bg-white transition-all underline ${
+                  editor?.isActive('underline') ? 'bg-blue-500 text-white shadow-md' : 'bg-white'
+                }`}
+                title="Underline (Ctrl+U)"
+              >
+                U
+              </button>
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().toggleStrike().run()}
+                className={`px-3 py-2 rounded-lg hover:bg-white transition-all line-through ${
+                  editor?.isActive('strike') ? 'bg-blue-500 text-white shadow-md' : 'bg-white'
+                }`}
+                title="Strikethrough"
+              >
+                S
+              </button>
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().toggleCode().run()}
+                className={`px-3 py-2 rounded-lg hover:bg-white transition-all font-mono text-sm ${
+                  editor?.isActive('code') ? 'bg-blue-500 text-white shadow-md' : 'bg-white'
+                }`}
+                title="Inline Code"
+              >
+                {'</>'}
+              </button>
+              
+              <div className="w-px bg-gray-400 mx-2"></div>
+              
+              {/* Headings */}
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()}
+                className={`px-3 py-2 rounded-lg hover:bg-white transition-all font-bold ${
+                  editor?.isActive('heading', { level: 1 }) ? 'bg-purple-500 text-white shadow-md' : 'bg-white'
+                }`}
+                title="Heading 1"
+              >
+                H1
+              </button>
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
+                className={`px-3 py-2 rounded-lg hover:bg-white transition-all font-bold ${
+                  editor?.isActive('heading', { level: 2 }) ? 'bg-purple-500 text-white shadow-md' : 'bg-white'
+                }`}
+                title="Heading 2"
+              >
+                H2
+              </button>
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()}
+                className={`px-3 py-2 rounded-lg hover:bg-white transition-all font-bold ${
+                  editor?.isActive('heading', { level: 3 }) ? 'bg-purple-500 text-white shadow-md' : 'bg-white'
+                }`}
+                title="Heading 3"
+              >
+                H3
+              </button>
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().setParagraph().run()}
+                className={`px-3 py-2 rounded-lg hover:bg-white transition-all ${
+                  editor?.isActive('paragraph') ? 'bg-purple-500 text-white shadow-md' : 'bg-white'
+                }`}
+                title="Paragraph"
+              >
+                P
+              </button>
+            </div>
+
+            {/* Row 2: Lists & Alignment */}
+            <div className="flex flex-wrap gap-1 mb-2 pb-2 border-b border-gray-300">
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().toggleBulletList().run()}
+                className={`px-3 py-2 rounded-lg hover:bg-white transition-all ${
+                  editor?.isActive('bulletList') ? 'bg-green-500 text-white shadow-md' : 'bg-white'
+                }`}
+                title="Bullet List"
+              >
+                <span className="font-bold">• List</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().toggleOrderedList().run()}
+                className={`px-3 py-2 rounded-lg hover:bg-white transition-all ${
+                  editor?.isActive('orderedList') ? 'bg-green-500 text-white shadow-md' : 'bg-white'
+                }`}
+                title="Numbered List"
+              >
+                <span className="font-bold">1. List</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().toggleBlockquote().run()}
+                className={`px-3 py-2 rounded-lg hover:bg-white transition-all ${
+                  editor?.isActive('blockquote') ? 'bg-green-500 text-white shadow-md' : 'bg-white'
+                }`}
+                title="Quote"
+              >
+                <span className="font-bold">"</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().toggleCodeBlock().run()}
+                className={`px-3 py-2 rounded-lg hover:bg-white transition-all font-mono text-sm ${
+                  editor?.isActive('codeBlock') ? 'bg-green-500 text-white shadow-md' : 'bg-white'
+                }`}
+                title="Code Block"
+              >
+                {'{ }'}
+              </button>
+              
+              <div className="w-px bg-gray-400 mx-2"></div>
+              
+              {/* Alignment */}
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().setTextAlign('left').run()}
+                className={`px-3 py-2 rounded-lg hover:bg-white transition-all ${
+                  editor?.isActive({ textAlign: 'left' }) ? 'bg-orange-500 text-white shadow-md' : 'bg-white'
+                }`}
+                title="Align Left"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M2 4h16v2H2V4zm0 4h10v2H2V8zm0 4h16v2H2v-2zm0 4h10v2H2v-2z"/>
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().setTextAlign('center').run()}
+                className={`px-3 py-2 rounded-lg hover:bg-white transition-all ${
+                  editor?.isActive({ textAlign: 'center' }) ? 'bg-orange-500 text-white shadow-md' : 'bg-white'
+                }`}
+                title="Align Center"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M2 4h16v2H2V4zm3 4h10v2H5V8zm-3 4h16v2H2v-2zm3 4h10v2H5v-2z"/>
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().setTextAlign('right').run()}
+                className={`px-3 py-2 rounded-lg hover:bg-white transition-all ${
+                  editor?.isActive({ textAlign: 'right' }) ? 'bg-orange-500 text-white shadow-md' : 'bg-white'
+                }`}
+                title="Align Right"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M2 4h16v2H2V4zm6 4h10v2H8V8zm-6 4h16v2H2v-2zm6 4h10v2H8v-2z"/>
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().setTextAlign('justify').run()}
+                className={`px-3 py-2 rounded-lg hover:bg-white transition-all ${
+                  editor?.isActive({ textAlign: 'justify' }) ? 'bg-orange-500 text-white shadow-md' : 'bg-white'
+                }`}
+                title="Justify"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M2 4h16v2H2V4zm0 4h16v2H2V8zm0 4h16v2H2v-2zm0 4h16v2H2v-2z"/>
+                </svg>
+              </button>
+            </div>
+
+            {/* Row 3: Media & Actions */}
+            <div className="flex flex-wrap gap-1">
+              {/* Image Button */}
+              <button
+                type="button"
+                onClick={() => setShowImageModal(true)}
+                className="px-3 py-2 rounded-lg hover:bg-teal-50 transition-all bg-white text-teal-600 font-semibold"
+                title="Insert Image"
+              >
+                <svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Image
+              </button>
+              
+              {/* Video Button */}
+              <button
+                type="button"
+                onClick={() => setShowVideoModal(true)}
+                className="px-3 py-2 rounded-lg hover:bg-pink-50 transition-all bg-white text-pink-600 font-semibold"
+                title="Insert Video"
+              >
+                <svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                Video
+              </button>
+              
+              <div className="w-px bg-gray-400 mx-2"></div>
+              
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().setHorizontalRule().run()}
+                className="px-3 py-2 rounded-lg hover:bg-white transition-all bg-white"
+                title="Horizontal Line"
+              >
+                <span className="text-sm">───</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().setHardBreak().run()}
+                className="px-3 py-2 rounded-lg hover:bg-white transition-all bg-white text-sm"
+                title="Line Break"
+              >
+                ↵ Break
+              </button>
+              
+              <div className="w-px bg-gray-400 mx-2"></div>
+              
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().undo().run()}
+                disabled={!editor?.can().undo()}
+                className="px-3 py-2 rounded-lg hover:bg-white transition-all bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Undo (Ctrl+Z)"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().redo().run()}
+                disabled={!editor?.can().redo()}
+                className="px-3 py-2 rounded-lg hover:bg-white transition-all bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Redo (Ctrl+Y)"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6" />
+                </svg>
+              </button>
+              
+              <div className="w-px bg-gray-400 mx-2"></div>
+              
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().clearNodes().unsetAllMarks().run()}
+                className="px-3 py-2 rounded-lg hover:bg-red-50 transition-all bg-white text-red-600 text-sm font-semibold"
+                title="Clear Formatting"
+              >
+                🗑️ Clear
+              </button>
+            </div>
+          </div>
+
+          {/* Editor Content - Enhanced */}
+          <div className="border-2 border-t-0 border-gray-300 rounded-b-lg bg-white shadow-inner">
+            <EditorContent 
+              editor={editor} 
+              className="prose prose-lg max-w-none p-6 min-h-[500px] focus:outline-none"
+            />
+          </div>
+          
+          {/* Helper Text */}
+          <div className="mt-2 flex items-start space-x-2 text-xs text-secondary">
+            <svg className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <p className="font-semibold text-primary">Tips:</p>
+              <ul className="list-disc list-inside space-y-1 mt-1">
+                <li>Gunakan <strong>Bold</strong>, <em>Italic</em>, atau <u>Underline</u> untuk emphasis</li>
+                <li>Heading (H1, H2, H3) untuk struktur konten yang jelas</li>
+                <li>Bullet list atau numbered list untuk poin-poin penting</li>
+                <li>Blockquote untuk kutipan atau highlight informasi penting</li>
+                <li>Code block untuk menampilkan contoh kode atau format khusus</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
         {/* Resume */}
         <div>
           <label className="block text-sm font-semibold text-primary mb-2">
@@ -217,106 +574,25 @@ const UpdateSubchapter = () => {
             className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none"
             placeholder="Ringkasan singkat dari subchapter ini..."
           />
+          <p className="text-xs text-secondary mt-1">Ringkasan akan ditampilkan sebagai preview</p>
         </div>
 
-        {/* TipTap Editor */}
+        {/* Regulation */}
         <div>
           <label className="block text-sm font-semibold text-primary mb-2">
-            Konten Subchapter
+            Peraturan/Regulasi Terkait
           </label>
-          
-          {/* Toolbar */}
-          <div className="border-2 border-gray-300 rounded-t-lg bg-gray-50 p-2 flex flex-wrap gap-1">
-            <button
-              type="button"
-              onClick={() => editor?.chain().focus().toggleBold().run()}
-              className={`px-3 py-1 rounded hover:bg-gray-200 font-bold ${editor?.isActive('bold') ? 'bg-gray-300' : ''}`}
-            >
-              B
-            </button>
-            <button
-              type="button"
-              onClick={() => editor?.chain().focus().toggleItalic().run()}
-              className={`px-3 py-1 rounded hover:bg-gray-200 italic ${editor?.isActive('italic') ? 'bg-gray-300' : ''}`}
-            >
-              I
-            </button>
-            <button
-              type="button"
-              onClick={() => editor?.chain().focus().toggleStrike().run()}
-              className={`px-3 py-1 rounded hover:bg-gray-200 line-through ${editor?.isActive('strike') ? 'bg-gray-300' : ''}`}
-            >
-              S
-            </button>
-            <div className="w-px bg-gray-300 mx-1"></div>
-            <button
-              type="button"
-              onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()}
-              className={`px-3 py-1 rounded hover:bg-gray-200 ${editor?.isActive('heading', { level: 1 }) ? 'bg-gray-300' : ''}`}
-            >
-              H1
-            </button>
-            <button
-              type="button"
-              onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
-              className={`px-3 py-1 rounded hover:bg-gray-200 ${editor?.isActive('heading', { level: 2 }) ? 'bg-gray-300' : ''}`}
-            >
-              H2
-            </button>
-            <button
-              type="button"
-              onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()}
-              className={`px-3 py-1 rounded hover:bg-gray-200 ${editor?.isActive('heading', { level: 3 }) ? 'bg-gray-300' : ''}`}
-            >
-              H3
-            </button>
-            <div className="w-px bg-gray-300 mx-1"></div>
-            <button
-              type="button"
-              onClick={() => editor?.chain().focus().toggleBulletList().run()}
-              className={`px-3 py-1 rounded hover:bg-gray-200 ${editor?.isActive('bulletList') ? 'bg-gray-300' : ''}`}
-            >
-              • List
-            </button>
-            <button
-              type="button"
-              onClick={() => editor?.chain().focus().toggleOrderedList().run()}
-              className={`px-3 py-1 rounded hover:bg-gray-200 ${editor?.isActive('orderedList') ? 'bg-gray-300' : ''}`}
-            >
-              1. List
-            </button>
-            <div className="w-px bg-gray-300 mx-1"></div>
-            <button
-              type="button"
-              onClick={() => editor?.chain().focus().setTextAlign('left').run()}
-              className={`px-3 py-1 rounded hover:bg-gray-200 ${editor?.isActive({ textAlign: 'left' }) ? 'bg-gray-300' : ''}`}
-            >
-              ⇤
-            </button>
-            <button
-              type="button"
-              onClick={() => editor?.chain().focus().setTextAlign('center').run()}
-              className={`px-3 py-1 rounded hover:bg-gray-200 ${editor?.isActive({ textAlign: 'center' }) ? 'bg-gray-300' : ''}`}
-            >
-              ⇔
-            </button>
-            <button
-              type="button"
-              onClick={() => editor?.chain().focus().setTextAlign('right').run()}
-              className={`px-3 py-1 rounded hover:bg-gray-200 ${editor?.isActive({ textAlign: 'right' }) ? 'bg-gray-300' : ''}`}
-            >
-              ⇥
-            </button>
-          </div>
-
-          {/* Editor Content */}
-          <div className="border-2 border-t-0 border-gray-300 rounded-b-lg">
-            <EditorContent 
-              editor={editor} 
-              className="prose max-w-none p-4 min-h-[400px]"
-            />
-          </div>
+          <textarea
+            name="regulation"
+            value={formData.regulation}
+            onChange={handleChange}
+            rows={2}
+            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none"
+            placeholder="Contoh: UU No. 28 Tahun 2007 tentang Ketentuan Umum dan Tata Cara Perpajakan"
+          />
+          <p className="text-xs text-secondary mt-1">Referensi hukum atau peraturan yang relevan</p>
         </div>
+
 
         {/* Actions */}
         <div className="flex gap-4 pt-4">
@@ -337,13 +613,123 @@ const UpdateSubchapter = () => {
         </div>
       </form>
 
+      {/* Image Modal */}
+      {showImageModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-scale-in">
+            <div className="p-6">
+              <div className="flex items-center justify-center w-16 h-16 bg-teal-100 rounded-full mx-auto mb-4">
+                <svg className="w-8 h-8 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-center text-primary mb-2">Insert Image</h3>
+              <p className="text-center text-secondary mb-4 text-sm">
+                Masukkan URL gambar yang ingin ditampilkan
+              </p>
+              <input
+                type="url"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="https://example.com/image.jpg"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-teal-500 focus:outline-none mb-4"
+                autoFocus
+              />
+              <div className="bg-blue-50 border-l-4 border-blue-400 p-3 mb-4 rounded text-sm">
+                <p className="text-blue-800">
+                  <strong>Contoh:</strong> https://example.com/image.jpg
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => { setShowImageModal(false); setImageUrl(''); }}
+                  className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={handleInsertImage}
+                  disabled={!imageUrl.trim()}
+                  className="flex-1 px-4 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Insert
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Video Modal */}
+      {showVideoModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-scale-in">
+            <div className="p-6">
+              <div className="flex items-center justify-center w-16 h-16 bg-pink-100 rounded-full mx-auto mb-4">
+                <svg className="w-8 h-8 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-center text-primary mb-2">Insert Video</h3>
+              <p className="text-center text-secondary mb-4 text-sm">
+                Masukkan URL video YouTube atau Vimeo
+              </p>
+              <input
+                type="url"
+                value={videoUrl}
+                onChange={(e) => setVideoUrl(e.target.value)}
+                placeholder="https://www.youtube.com/watch?v=..."
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-pink-500 focus:outline-none mb-4"
+                autoFocus
+              />
+              <div className="bg-blue-50 border-l-4 border-blue-400 p-3 mb-4 rounded text-sm">
+                <p className="text-blue-800 mb-2">
+                  <strong>Contoh URL YouTube:</strong>
+                </p>
+                <ul className="list-disc list-inside text-blue-700 space-y-1">
+                  <li>https://www.youtube.com/watch?v=VIDEO_ID</li>
+                  <li>https://youtu.be/VIDEO_ID</li>
+                  <li>https://www.youtube.com/embed/VIDEO_ID</li>
+                </ul>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => { setShowVideoModal(false); setVideoUrl(''); }}
+                  className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={handleInsertVideo}
+                  disabled={!videoUrl.trim()}
+                  className="flex-1 px-4 py-3 bg-pink-600 hover:bg-pink-700 text-white rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Insert
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style>{`
         @keyframes slide-in-right {
           from { transform: translateX(100%); opacity: 0; }
           to { transform: translateX(0); opacity: 1; }
         }
-        .animate-slide-in-right {
-          animation: slide-in-right 0.3s ease-out;
+        @keyframes scale-in {
+          from {
+            transform: scale(0.9);
+            opacity: 0;
+          }
+          to {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+        
+        .animate-scale-in {
+          animation: scale-in 0.2s ease-out;
         }
         
         /* TipTap Editor Styles */
@@ -401,6 +787,65 @@ const UpdateSubchapter = () => {
         
         .ProseMirror li p {
           margin: 0;
+        }
+        
+        /* Image Styles */
+        .ProseMirror img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 0.5rem;
+          margin: 1rem 0;
+          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        
+        /* Blockquote Styles */
+        .ProseMirror blockquote {
+          border-left: 4px solid #3b82f6;
+          padding-left: 1rem;
+          margin: 1rem 0;
+          font-style: italic;
+          color: #6b7280;
+        }
+        
+        /* Code Block Styles */
+        .ProseMirror pre {
+          background: #1f2937;
+          color: #f3f4f6;
+          padding: 1rem;
+          border-radius: 0.5rem;
+          margin: 1rem 0;
+          overflow-x: auto;
+        }
+        
+        .ProseMirror pre code {
+          background: none;
+          color: inherit;
+          font-size: 0.875rem;
+          padding: 0;
+        }
+        
+        /* Inline Code Styles */
+        .ProseMirror code {
+          background: #f3f4f6;
+          color: #ef4444;
+          padding: 0.125rem 0.375rem;
+          border-radius: 0.25rem;
+          font-size: 0.875rem;
+          font-family: monospace;
+        }
+        
+        /* Horizontal Rule */
+        .ProseMirror hr {
+          border: none;
+          border-top: 2px solid #e5e7eb;
+          margin: 2rem 0;
+        }
+        
+        /* Video iframe responsiveness */
+        .ProseMirror iframe {
+          max-width: 100%;
+          border-radius: 0.5rem;
+          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
         }
       `}</style>
     </div>

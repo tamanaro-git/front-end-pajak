@@ -18,7 +18,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         </svg>
       ),
       path: "/admin/dashboard",
-      roles: ['super-admin']
+      roles: ['Admin', 'Manager']
     },
     {
       title: "Super Admin Management",
@@ -38,7 +38,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         </svg>
       ),
       path: "/admin/users",
-      roles: ['super-admin']
+      roles: ['Admin']
     },
     {
       title: "Learning Management",
@@ -48,7 +48,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         </svg>
       ),
       path: "/admin/books",
-      roles: ['super-admin', 'Manager']
+      roles: ['Admin', 'Manager']
     },
     {
       title: "Konsultasi",

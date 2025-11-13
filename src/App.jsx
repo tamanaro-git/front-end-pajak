@@ -13,9 +13,10 @@ import ChapterPage from './pages/admin/learning/ChapterPage';
 import SubchapterPage from './pages/admin/learning/SubchapterPage';
 import AddSubchapter from './pages/admin/learning/AddSubchapter';
 import UpdateSubchapter from './pages/admin/learning/UpdateSubchapter';
+import SuperAdminPage from './pages/admin/management-user/SuperAdminPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 import ProtectedRoute from './components/ProtectedRoute';
-
+import ManagementUserSuperAdmin from './pages/admin/management-user/SuperAdminPage';
 function App() {
   return (
     // <Router>
@@ -41,19 +42,29 @@ function App() {
           {/* Dashboard - Admin & Manager */}
           <Route path="dashboard" element={<DashboardPage />} />
           
+          {/* Super Admin Management - Admin only */}
+          <Route 
+            path="super-admin" 
+            element={
+              <ProtectedRoute allowedRoles={['Admin']}>
+                <SuperAdminPage />
+              </ProtectedRoute>
+            } 
+          />
+          
           {/* Users Management - Admin only */}
           <Route 
             path="users" 
             element={
-              <ProtectedRoute allowedRoles={['Admin']}>
-                <UsersPage />
+              <ProtectedRoute allowedRoles={['super-admin']}>
+                <ManagementUserSuperAdmin />
               </ProtectedRoute>
             } 
           />
 
           {/* Learning Management - Admin & Manager */}
           <Route path="books" element={
-            <ProtectedRoute allowedRoles={["admin-learning", "manager-learning"]}>  
+            <ProtectedRoute allowedRoles={["admin-learning", "super-admin"]}>  
             <BookPage />
             </ProtectedRoute>
             } />
