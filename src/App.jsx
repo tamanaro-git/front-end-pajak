@@ -25,6 +25,7 @@ import OpinionPage from './pages/admin/users/OpinionPage';
 import AddOpinionPage from './pages/admin/users/AddOpinionPage';
 import UpdateOpinionPage from './pages/admin/users/UpdateOpinionPage';
 import NewsVerificationPage from './pages/admin/editor/journalist/index';
+import OpinionVerificationPage from './pages/admin/editor/opinion/index';
 function App() {
   return (
     // <Router>
@@ -93,6 +94,7 @@ function App() {
           <Route path="opinions/edit/:id" element={<UpdateOpinionPage />} />
 
           <Route path='verifications/news' element={<NewsVerificationPage />} />
+          <Route path='verifications/opinions' element={<OpinionVerificationPage />} />
         </Route>
       </Routes>
     // </Router>
