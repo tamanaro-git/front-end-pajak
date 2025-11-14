@@ -88,11 +88,13 @@ const authService = {
       await api.post('/auth/logout');
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      localStorage.removeItem('role');
       return true;
     } catch (error) {
       // Even if API call fails, clear local storage
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      localStorage.removeItem('role');
       throw error.response?.data || { message: error.message };
     }
   },

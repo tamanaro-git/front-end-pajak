@@ -25,8 +25,20 @@ const LoginPage = () => {
       if (response.status === 'success') {
         // Redirect based on user role
         const user = authService.getCurrentUser();
-        if (user.role === 'admin') {
+        if (user.role === 'super-admin') {
           navigate('/admin/dashboard');
+        } else if (user.role === 'admin-learning') {
+          navigate('/admin/books');
+        } else if (user.role === 'admin-news') {
+          navigate('/admin/users-news');
+        } else if (user.role === 'journalist') {
+          navigate('/admin/news');
+        } else if (user.role === 'user') {
+          navigate('/admin/opinions');
+        } else if (user.role === 'editor-journalist') {
+          navigate('/admin/verifications/news');
+        } else if (user.role === 'editor-opinion') {
+          navigate('/admin/verifications/opinions');
         } else {
           navigate('/');
         }
@@ -48,8 +60,8 @@ const LoginPage = () => {
       
       if (response.status === 'success') {
         const user = authService.getCurrentUser();
-        if (user.role === 'admin') {
-          navigate('/admin/dashboard');
+        if (user.role === 'user') {
+          navigate('/admin/opinions');
         } else {
           navigate('/');
         }
