@@ -1,4 +1,4 @@
-// filepath: /home/zarif/Project/taxmin/front-end/src/services/newsService.js
+// src/services/newsService.js
 import api from './api';
 
 const newsService = {
@@ -40,6 +40,12 @@ const newsService = {
   // Update news
   updateNews: async (id, newsData) => {
     const response = await api.put(`/news/${id}`, newsData);
+    return response.data;
+  },
+
+  // Update news status (approve/reject workflow)
+  updateNewsStatus: async (id, status) => {
+    const response = await api.put(`/news/${id}/status`, { status });
     return response.data;
   },
 
