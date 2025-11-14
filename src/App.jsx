@@ -5,7 +5,8 @@ import RegistrationPage from './pages/authentication/RegistrationPage';
 import AdminLayout from './layouts/AdminLayout';
 import DashboardPage from './pages/admin/DashboardPage';
 import UsersPage from './pages/admin/UsersPage';
-import NewsDetailPage from './pages/news/index';
+import NewsListPage from './pages/news/index';
+import NewsDetailPage from './pages/news/NewsDetailPage';
 import LearningPage from './pages/learning/index';
 import LearningDetailPage from './pages/learning/detail/index';
 import BookPage from './pages/admin/learning/BookPage';
@@ -34,7 +35,8 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegistrationPage />} />
-        <Route path='/news' element={<NewsDetailPage />} />
+        <Route path='/news' element={<NewsListPage />} />
+        <Route path='/news/:artikelId' element={<NewsDetailPage />} />
         <Route path='/learning' element={<LearningPage />} />
         <Route path='/learning/:id' element={<LearningDetailPage />} />
         <Route path='/unauthorized' element={<UnauthorizedPage />} />

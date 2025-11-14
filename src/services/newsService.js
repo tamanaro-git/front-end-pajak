@@ -31,6 +31,12 @@ const newsService = {
     return response.data;
   },
 
+  // Get news by title (search by title)
+  getNewsByTitle: async (title) => {
+    const response = await api.get(`/news/title/${encodeURIComponent(title)}`);
+    return response.data;
+  },
+
   // Create news
   createNews: async (newsData) => {
     const response = await api.post('/news', newsData);
@@ -52,6 +58,24 @@ const newsService = {
   // Delete news
   deleteNews: async (id) => {
     const response = await api.delete(`/news/${id}`);
+    return response.data;
+  },
+
+  // Increment views
+  incrementViews: async (id) => {
+    const response = await api.post(`/news/${id}/views`);
+    return response.data;
+  },
+
+  // Increment likes
+  incrementLikes: async (id) => {
+    const response = await api.post(`/news/${id}/likes`);
+    return response.data;
+  },
+
+  // Increment shares
+  incrementShares: async (id) => {
+    const response = await api.post(`/news/${id}/shares`);
     return response.data;
   }
 };
