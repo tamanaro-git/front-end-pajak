@@ -147,6 +147,7 @@ const UpdateNewsPage = () => {
       // Remove artikelId and id from update data (cannot be changed)
       const { artikelId: _artikelId, id: newsId, ...updateData } = formData;
       
+      // Don't send status in update - status should be updated separately via /status endpoint
       const response = await newsService.updateNews(newsId, updateData);
       
       if (response.status === 'success') {

@@ -97,10 +97,12 @@ const AddNewsPage = () => {
     setLoading(true);
 
     try {
+      // Determine status based on action type
+      const status = actionType === 'draft' ? 'draft' : 'pending';
+      
       const response = await newsService.createNews({
         ...formData,
-        // If actionType is 'publish', set status to 'pending' (waiting for approval)
-        // If 'draft', status defaults to 'draft' on backend
+        status: status // Explicitly set status
       });
       
       if (response.status === 'success') {

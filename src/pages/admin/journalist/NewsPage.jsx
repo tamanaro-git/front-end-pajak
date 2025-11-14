@@ -24,6 +24,7 @@ const NewsPage = () => {
   
   // Modal states
   const [showModal, setShowModal] = useState(false);
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [selectedNews, setSelectedNews] = useState(null);
   
   // Notification state
@@ -100,6 +101,31 @@ const NewsPage = () => {
       setShowModal(false);
     } catch (error) {
       showNotification("error", error.message || "Gagal menghapus news!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle submit draft to pending
+  const handleSubmitForReview = (newsItem) => {
+    setSelectedNews(newsItem);
+    setShowSubmitModal(true);
+  };
+
+  // Confirm submit draft to pending
+  const confirmSubmit = async () => {
+    setLoading(true);
+    
+    try {
+      const response = await newsService.updateNewsStatus(selectedNews.id, 'pending');
+      if (response.status === 'success') {
+        showNotification("success", "News berhasil disubmit untuk review!");
+        fetchNews();
+      }
+      
+      setShowSubmitModal(false);
+    } catch (error) {
+      showNotification("error", error.message || "Gagal submit news!");
     } finally {
       setLoading(false);
     }
@@ -325,8 +351,21 @@ const NewsPage = () => {
 
                 {/* Actions */}
                 <div className="flex items-center space-x-2 shrink-0">
+                  {/* Submit untuk Review button - only for draft status */}
+                  {newsItem.status === 'draft' && (
+                    <button
+                      onClick={() => handleSubmitForReview(newsItem)}
+                      className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                      title="Submit untuk Review"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </button>
+                  )}
+                  
                   <button
-                    onClick={() => navigate(`/admin/news/edit/${newsItem.id}`)}
+                    onClick={() => navigate(`/admin/news/edit/${newsItem.artikelId}`)}
                     className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                     title="Edit News"
                   >
@@ -408,6 +447,45 @@ const NewsPage = () => {
                   className="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold disabled:opacity-50"
                 >
                   {loading ? 'Menghapus...' : 'Ya, Hapus'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Submit for Review Modal */}
+      {showSubmitModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-scale-in">
+            <div className="p-6">
+              <div className="flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mx-auto mb-4">
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-center text-primary mb-2">Submit untuk Review?</h3>
+              <p className="text-center text-secondary mb-4">
+                Apakah Anda yakin ingin mengirim <strong>{selectedNews?.title}</strong> untuk direview?
+              </p>
+              <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4 rounded">
+                <p className="text-sm text-blue-800">
+                  <strong>Catatan:</strong> Setelah disubmit, artikel akan masuk ke status <strong>Pending</strong> dan menunggu approval dari editor/admin.
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowSubmitModal(false)}
+                  className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={confirmSubmit}
+                  disabled={loading}
+                  className="flex-1 px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold disabled:opacity-50"
+                >
+                  {loading ? 'Mengirim...' : 'Ya, Submit'}
                 </button>
               </div>
             </div>
