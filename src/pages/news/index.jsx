@@ -1,8 +1,156 @@
 
-const NewsDetailPage = () => {
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import newsService from "../../services/newsService";
+
+const NewsListPage = () => {
+  const navigate = useNavigate();
+  const [news, setNews] = useState([]);
+  const [trendingNews, setTrendingNews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 9, totalPages: 0 });
+  
+  // Filters
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [activeFilter, setActiveFilter] = useState('all');
+
+  const categories = [
+    'Perpajakan',
+    'Ekonomi',
+    'Pajak Penghasilan',
+    'PPN',
+    'PPh',
+    'KUP',
+    'Coretax',
+    'Perspective'
+  ];
+
+  const filters = [
+    { id: 'all', label: 'Semua Berita', icon: '📰' },
+    { id: 'latest', label: 'Terbaru', icon: '🆕' },
+    { id: 'popular', label: 'Populer', icon: '🔥' },
+    { id: 'trending', label: 'Trending', icon: '📈' }
+  ];
+
+  useEffect(() => {
+    fetchNews();
+    fetchTrendingNews();
+  }, []);
+
+  useEffect(() => {
+    fetchNews(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCategory, activeFilter]);
+
+  const fetchNews = async (page = pagination.page) => {
+    try {
+      setLoading(true);
+      
+      let params = {
+        page,
+        limit: 9,
+        status: 'published'
+      };
+
+      if (selectedCategory) {
+        params.kategori = selectedCategory;
+      }
+
+      if (searchQuery) {
+        params.search = searchQuery;
+      }
+
+      const response = await newsService.getAllNews(params);
+      
+      if (response.status === 'success') {
+        let newsData = response.data.news || [];
+        
+        // Apply filter sorting
+        if (activeFilter === 'latest') {
+          newsData = newsData.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+        } else if (activeFilter === 'popular') {
+          newsData = newsData.sort((a, b) => (b.views || 0) - (a.views || 0));
+        } else if (activeFilter === 'trending') {
+          newsData = newsData.sort((a, b) => {
+            const scoreA = (a.views || 0) * 0.5 + (a.likes || 0) * 2 + (a.shares || 0) * 3;
+            const scoreB = (b.views || 0) * 0.5 + (b.likes || 0) * 2 + (b.shares || 0) * 3;
+            return scoreB - scoreA;
+          });
+        }
+        
+        setNews(newsData);
+        setPagination(response.data.pagination || { total: 0, page: 1, limit: 9, totalPages: 0 });
+      }
+    } catch (error) {
+      console.error('Error fetching news:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchTrendingNews = async () => {
+    try {
+      const response = await newsService.getAllNews({
+        page: 1,
+        limit: 5,
+        status: 'published'
+      });
+      
+      if (response.status === 'success') {
+        const sorted = (response.data.news || []).sort((a, b) => {
+          const scoreA = (a.views || 0) * 0.5 + (a.likes || 0) * 2 + (a.shares || 0) * 3;
+          const scoreB = (b.views || 0) * 0.5 + (b.likes || 0) * 2 + (b.shares || 0) * 3;
+          return scoreB - scoreA;
+        });
+        setTrendingNews(sorted.slice(0, 5));
+      }
+    } catch (error) {
+      console.error('Error fetching trending news:', error);
+    }
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchNews(1);
+  };
+
+  const handleNewsClick = (artikelId) => {
+    navigate(`/news/${artikelId}`);
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('id-ID', { 
+      day: 'numeric',
+      month: 'long', 
+      year: 'numeric'
+    });
+  };
+
+  const getCategoryColor = (category) => {
+    const colors = {
+      "Perpajakan": "bg-blue-100 text-blue-800",
+      "Ekonomi": "bg-green-100 text-green-800",
+      "Perspective": "bg-purple-100 text-purple-800",
+      "Pajak Penghasilan": "bg-blue-100 text-blue-800",
+      "PPN": "bg-green-100 text-green-800",
+      "PPh": "bg-indigo-100 text-indigo-800",
+      "KUP": "bg-yellow-100 text-yellow-800",
+      "Coretax": "bg-pink-100 text-pink-800"
+    };
+    return colors[category] || "bg-gray-100 text-gray-800";
+  };
+
+  const truncateText = (text, maxLength = 120) => {
+    if (!text) return '';
+    const cleanText = text.replace(/<[^>]*>/g, '');
+    if (cleanText.length <= maxLength) return cleanText;
+    return cleanText.substring(0, maxLength) + '...';
+  };
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Hero Section */}
+    <div className="min-h-screen bg-white">{/* ...existing code... */}
       <section className="relative bg-primary-dark text-white py-20 overflow-hidden">
         {/* Background Decorative Icons */}
         <div className="absolute inset-0 opacity-10">
@@ -77,13 +225,316 @@ const NewsDetailPage = () => {
 
       {/* Additional Sections Can Go Here */}
       <section className="max-w-7xl mx-auto px-6 py-12">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-primary mb-4">Berita Terkini</h2>
-          <p className="text-secondary">Temukan informasi terbaru seputar pajak dan bisnis</p>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Left Sidebar - Filters */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-6 space-y-6">
+              {/* Search Box */}
+              <div className="bg-white rounded-xl shadow-md p-6">
+                <h3 className="text-lg font-bold text-primary mb-4">🔍 Cari Berita</h3>
+                <form onSubmit={handleSearch}>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Cari judul, topik..."
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:outline-none"
+                    />
+                    <button
+                      type="submit"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              {/* Filter by Type */}
+              <div className="bg-white rounded-xl shadow-md p-6">
+                <h3 className="text-lg font-bold text-primary mb-4">📂 Filter</h3>
+                <div className="space-y-2">
+                  {filters.map((filter) => (
+                    <button
+                      key={filter.id}
+                      onClick={() => setActiveFilter(filter.id)}
+                      className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg font-semibold transition-all ${
+                        activeFilter === filter.id
+                          ? 'bg-primary text-white shadow-md'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      <span className="text-xl">{filter.icon}</span>
+                      <span>{filter.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Category Filter */}
+              <div className="bg-white rounded-xl shadow-md p-6">
+                <h3 className="text-lg font-bold text-primary mb-4">🏷️ Kategori</h3>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => setSelectedCategory('')}
+                    className={`w-full text-left px-4 py-2 rounded-lg font-medium transition-colors ${
+                      selectedCategory === ''
+                        ? 'bg-primary text-white'
+                        : 'hover:bg-gray-100 text-gray-700'
+                    }`}
+                  >
+                    Semua Kategori
+                  </button>
+                  {categories.map((category) => (
+                    <button
+                      key={category}
+                      onClick={() => setSelectedCategory(category)}
+                      className={`w-full text-left px-4 py-2 rounded-lg font-medium transition-colors ${
+                        selectedCategory === category
+                          ? 'bg-primary text-white'
+                          : 'hover:bg-gray-100 text-gray-700'
+                      }`}
+                    >
+                      {category}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Top Trending */}
+              <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl shadow-md p-6 border-2 border-yellow-200">
+                <h3 className="text-lg font-bold text-primary mb-4 flex items-center">
+                  <span className="text-2xl mr-2">🔥</span>
+                  Top Trending
+                </h3>
+                <div className="space-y-4">
+                  {trendingNews.map((item, index) => (
+                    <div
+                      key={item.id}
+                      onClick={() => handleNewsClick(item.artikelId)}
+                      className="flex space-x-3 cursor-pointer group"
+                    >
+                      <div className="flex-shrink-0">
+                        <div className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold shadow-md">
+                          {index + 1}
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-bold text-primary group-hover:text-primary-dark transition-colors line-clamp-2 mb-1">
+                          {item.title}
+                        </h4>
+                        <div className="flex items-center space-x-3 text-xs text-secondary">
+                          <span className="flex items-center">
+                            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            {item.views || 0}
+                          </span>
+                          <span className="flex items-center">
+                            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                            {item.likes || 0}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Main Content - News Grid */}
+          <div className="lg:col-span-3">
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-primary">
+                  {selectedCategory || 'Semua'} Berita
+                </h2>
+                <p className="text-secondary text-sm">
+                  Menampilkan {news.length} dari {pagination.total} artikel
+                </p>
+              </div>
+            </div>
+
+            {/* Loading State */}
+            {loading ? (
+              <div className="flex items-center justify-center py-20">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div>
+              </div>
+            ) : news.length === 0 ? (
+              <div className="text-center py-20">
+                <svg className="w-24 h-24 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <h3 className="text-xl font-semibold text-gray-600 mb-2">Tidak Ada Berita</h3>
+                <p className="text-gray-500">Coba ubah filter atau kata kunci pencarian</p>
+              </div>
+            ) : (
+              <>
+                {/* News Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                  {news.map((item) => (
+                    <article
+                      key={item.id}
+                      onClick={() => handleNewsClick(item.artikelId)}
+                      className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer group"
+                    >
+                      {/* Image */}
+                      <div className="relative h-48 overflow-hidden bg-gradient-to-br from-primary via-primary-dark to-secondary">
+                        {item.image ? (
+                          <img
+                            src={item.image}
+                            alt={item.title}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <svg className="w-16 h-16 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                          </div>
+                        )}
+                        
+                        {/* Category Badge */}
+                        {item.kategori && (
+                          <div className="absolute top-3 left-3">
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold shadow-lg ${getCategoryColor(item.kategori)}`}>
+                              {item.kategori}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Stats Overlay */}
+                        <div className="absolute bottom-3 right-3 flex items-center space-x-2 text-white text-xs font-semibold">
+                          <div className="flex items-center bg-black/30 backdrop-blur-sm px-2 py-1 rounded-full">
+                            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            {item.views || 0}
+                          </div>
+                          <div className="flex items-center bg-black/30 backdrop-blur-sm px-2 py-1 rounded-full">
+                            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                            {item.likes || 0}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Content */}
+                      <div className="p-5">
+                        <h3 className="text-lg font-bold text-primary mb-2 line-clamp-2 group-hover:text-primary-dark transition-colors">
+                          {item.title}
+                        </h3>
+                        
+                        <p className="text-secondary text-sm mb-4 line-clamp-3">
+                          {truncateText(item.content || item.fullContent)}
+                        </p>
+
+                        {/* Meta Info */}
+                        <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                          <div className="flex items-center text-xs text-secondary">
+                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            {item.author?.fullName || 'Admin'}
+                          </div>
+                          <div className="text-xs text-secondary">
+                            {formatDate(item.publishedAt || item.createdAt)}
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {pagination.totalPages > 1 && (
+                  <div className="flex justify-center items-center space-x-2">
+                    <button
+                      onClick={() => fetchNews(pagination.page - 1)}
+                      disabled={pagination.page === 1}
+                      className="px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold"
+                    >
+                      ← Previous
+                    </button>
+                    
+                    <div className="flex space-x-2">
+                      {[...Array(Math.min(pagination.totalPages, 5))].map((_, i) => {
+                        const pageNum = i + 1;
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => fetchNews(pageNum)}
+                            className={`px-4 py-2 rounded-lg font-bold transition-colors ${
+                              pagination.page === pageNum
+                                ? 'bg-primary text-white shadow-md'
+                                : 'border-2 border-gray-300 hover:bg-gray-100'
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+                      {pagination.totalPages > 5 && (
+                        <>
+                          <span className="px-2 py-2">...</span>
+                          <button
+                            onClick={() => fetchNews(pagination.totalPages)}
+                            className={`px-4 py-2 rounded-lg font-bold transition-colors ${
+                              pagination.page === pagination.totalPages
+                                ? 'bg-primary text-white shadow-md'
+                                : 'border-2 border-gray-300 hover:bg-gray-100'
+                            }`}
+                          >
+                            {pagination.totalPages}
+                          </button>
+                        </>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={() => fetchNews(pagination.page + 1)}
+                      disabled={pagination.page === pagination.totalPages}
+                      className="px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold"
+                    >
+                      Next →
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
+
+        <style>{`
+          .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          }
+          
+          .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          }
+        `}</style>
       </section>
     </div>
   );
 };
 
-export default NewsDetailPage;
+export default NewsListPage;
