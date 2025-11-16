@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Create axios instance
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
+  baseURL: 'https://back.taxonomy.id/api', // Replace with your API base URL
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
