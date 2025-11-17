@@ -6,14 +6,13 @@ const SectionComponent = () => {
           {/* Left Content */}
           <div className="z-10">
             <h1 className="text-4xl lg:text-5xl font-bold mb-6 leading-tight">
-              Payment Gateway Indonesia Terlengkap untuk Bisnis Anda
+              
+Jelajahi dunia perpajakan dengan lebih percaya diri melalui wawasan ahli dan panduan komprehensif kami. 
             </h1>
             <p className="text-lg text-secondary mb-8">
-              Bersama Midtrans, fokus pada bisnis Anda untuk kelola semua pembayaran.
+              Dapatkan panduan praktis dan wawasan yang memberdayakan untuk mengelola kewajiban pajak Anda dengan lebih mudah.
             </p>
-            <button className="bg-primary hover:bg-opacity-80 text-white px-8 py-3 rounded-full font-medium transition-colors">
-              Daftar Sekarang
-            </button>
+   
           </div>
 
           {/* Right Content - Laptop Image */}

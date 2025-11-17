@@ -85,7 +85,7 @@ const NewsSection = () => {
             Informasi Terkini Seputar Pajak
           </h2>
           <p className="text-secondary text-lg max-w-2xl mx-auto">
-            Dapatkan update terbaru tentang peraturan pajak, tips, dan panduan dari para ahli
+            Platform ini secara konsisten menyajikan informasi dan perkembangan terbaru seputar dunia perpajakan.
           </p>
         </div>
 

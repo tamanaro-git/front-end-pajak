@@ -15,12 +15,12 @@ const FooterSection = () => {
       <div className="bg-gradient-to-r from-primary-dark to-primary py-20">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
-            Kirim Pertanyaan Anda Melalui Sistem Tiket Kami
+            Ada pertanyaan yang perlu kami bantu? Silakan sampaikan detailnya di sini
           </h2>
           <p className="text-neutral-light text-lg mb-8 max-w-3xl mx-auto">
-            Tulis deskripsi dan unggah dokumen pendukung PDF. Kami akan membalas saat tersedia, 
-            dan Anda dapat melacak statusnya di dashboard.
-          </p>
+            Deskripsikan dengan detail dan lampirkan dokumen pendukung yang relevan. 
+Anda dapat memantau status penanganannya secara langsung melalui dashboard
+            </p>
           <button className="bg-neutral-light text-primary-dark px-8 py-4 rounded-full font-bold text-lg transition-colors shadow-lg hover:shadow-xl">
             Buat Tiket Pertanyaan
           </button>

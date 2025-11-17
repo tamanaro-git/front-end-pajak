@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 
 const AboutSection = () => {
   const features = [
@@ -7,7 +8,7 @@ const AboutSection = () => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       ),
-      title: "Konsultasi Profesional"
+      title: "Informasi Up-to-Date"
     },
     {
       icon: (
@@ -15,7 +16,7 @@ const AboutSection = () => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       ),
-      title: "Hemat Biaya & Waktu"
+      title: "Penjelasan Komprehensif"
     },
     {
       icon: (
@@ -23,7 +24,7 @@ const AboutSection = () => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
       ),
-      title: "Laporan Lengkap"
+      title: "Panduan yang Mudah Dipahami"
     },
     {
       icon: (
@@ -31,7 +32,7 @@ const AboutSection = () => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
         </svg>
       ),
-      title: "Aman & Terpercaya"
+      title: "Topik yang Relevan"
     }
   ];
 
@@ -48,23 +49,21 @@ const AboutSection = () => {
             </div>
             
             <h2 className="text-4xl lg:text-5xl font-bold text-primary leading-tight">
-              Taxmin.id Platform Jasa Konsultan Pajak
+              Pajax.id adalah platform yang menyajikan informasi perpajakan secara jelas dan akurat. 
             </h2>
             
             <p className="text-secondary text-lg leading-relaxed">
-              Taxmin.id adalah platform jasa konsultan pajak profesional yang membantu individu dan perusahaan 
-              dalam mengelola kewajiban perpajakan dengan lebih mudah dan efisien.
+              Kami hadir untuk membantu Anda memahami berbagai ketentuan dan regulasi pajak di Indonesia. Temukan panduan praktis serta artikel relevan untuk mendukung kebutuhan Anda.
             </p>
             
             <p className="text-secondary text-lg leading-relaxed">
-              Kami menyediakan solusi lengkap mulai dari konsultasi, perencanaan pajak, hingga pelaporan 
-              dengan didukung oleh tim ahli yang berpengalaman dan terpercaya.
+              Tujuan kami adalah membuat pengelolaan pajak Anda menjadi lebih mudah dan terarah.
             </p>
 
             <div className="pt-4">
-              <button className="bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-full font-medium transition-colors">
+              <Link to="/learning" className="bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-full font-medium transition-colors">
                 Pelajari Lebih Lanjut
-              </button>
+              </Link>
             </div>
           </div>
 

@@ -7,28 +7,28 @@ const FaqSection = () => {
 
   const faqs = [
     {
-      question: "Apa itu Taxmin.id?",
-      answer: "Taxmin.id adalah platform jasa konsultan pajak profesional yang membantu individu dan perusahaan dalam mengelola kewajiban perpajakan dengan mudah dan efisien. Kami menyediakan solusi lengkap dari konsultasi hingga pelaporan pajak."
+      question: "Gaji saya sudah dipotong pajak PPh 21 oleh kantor. Mengapa saya masih wajib lapor SPT Tahunan?",
+      answer: "Lapor SPT adalah kewajiban terpisah dari membayar. PPh 21 yang dipotong perusahaan adalah 'cicilan' pajak Anda. Lapor SPT berfungsi sebagai validasi akhir untuk melaporkan seluruh penghasilan Anda dalam setahun (termasuk jika ada dari sumber lain) dan memastikan total pajak Anda sudah sesuai."
     },
     {
-      question: "Layanan apa saja yang tersedia?",
-      answer: "Kami menyediakan berbagai layanan termasuk konsultasi pajak, perencanaan pajak, penghitungan pajak, pelaporan SPT Tahunan, pembuatan NPWP, dan pendampingan audit pajak. Semua layanan ditangani oleh tim ahli yang berpengalaman."
+      question: "Penghasilan saya di bawah PTKP (Penghasilan Tidak Kena Pajak). Apakah saya tetap harus lapor SPT?",
+      answer: "Ya, selama NPWP Anda masih berstatus aktif, Anda tetap wajib melaporkan SPT Tahunan. Pelaporan ini penting untuk data administrasi, dan status SPT Anda akan tercatat sebagai 'Nihil' (tidak ada pajak yang perlu dibayar)."
     },
     {
-      question: "Berapa biaya konsultasi pajak?",
-      answer: "Biaya konsultasi bervariasi tergantung jenis layanan dan kompleksitas kasus. Kami menawarkan paket konsultasi yang fleksibel mulai dari konsultasi dasar hingga pendampingan penuh. Silakan hubungi kami untuk informasi detail mengenai harga."
+      question: "Saya pindah kerja di pertengahan tahun. Mengapa saat lapor SPT status saya jadi \"Kurang Bayar\"?",
+      answer: "Ini adalah situasi yang wajar. Status 'Kurang Bayar' sering terjadi karena perhitungan PPh 21 di perusahaan lama dan baru Anda bersifat terpisah. Saat penghasilan setahun Anda digabungkan di SPT, total pajak terutang Anda bisa jadi lebih besar dari total yang sudah dipotong oleh kedua perusahaan."
     },
     {
-      question: "Apakah data saya aman?",
-      answer: "Keamanan data klien adalah prioritas utama kami. Semua data pribadi dan finansial dilindungi dengan sistem enkripsi tingkat tinggi dan disimpan dengan standar keamanan internasional. Kami juga menerapkan kebijakan privasi yang ketat."
+      question: "Saya seorang freelancer dengan banyak klien. Bagaimana skema pajak yang paling umum untuk saya?",
+      answer: "Sebagai freelancer, Anda dianggap sebagai \"Pekerja Bebas\" dan wajib menghitung pajak sendiri. Anda dapat menggunakan metode Pembukuan (jika omzet besar) atau Norma Penghitungan (NPPN) yang lebih sederhana, lalu menyetor angsuran PPh Pasal 25 setiap bulan dan melaporkannya di SPT Tahunan."
     },
     {
-      question: "Bagaimana cara memulai konsultasi?",
-      answer: "Anda dapat memulai dengan mendaftar di platform kami, kemudian memilih layanan yang dibutuhkan. Tim kami akan menghubungi Anda untuk jadwal konsultasi. Konsultasi pertama bisa dilakukan secara online atau tatap muka sesuai preferensi Anda."
+      question: "Saya memiliki usaha online shop kecil. Apakah saya harus menggunakan perhitungan pajak yang rumit?",
+      answer: "Tidak harus. Untuk usaha dengan omzet di bawah Rp 4,8 Miliar per tahun, Anda dapat memanfaatkan skema PPh Final UMKM. Anda hanya perlu membayar pajak sebesar 0,5% dari total omzet kotor Anda setiap bulan, yang jauh lebih sederhana daripada perhitungan laba-rugi."
     },
     {
-      question: "Berapa lama proses pelaporan pajak?",
-      answer: "Waktu proses tergantung kompleksitas laporan dan kelengkapan dokumen. Untuk kasus standar, biasanya memerlukan 3-5 hari kerja. Kami juga menyediakan layanan express untuk kebutuhan mendesak dengan tambahan biaya."
+      question: "Apa risiko paling umum jika saya mengabaikan kewajiban lapor SPT Tahunan?",
+      answer: "Risiko jangka pendek adalah sanksi administrasi berupa denda (Rp 100.000 untuk Pribadi, Rp 1.000.000 untuk Badan) setiap kali Anda tidak lapor. Jika diabaikan terus-menerus, Anda akan menerima Surat Teguran dari Kantor Pajak, yang dapat berlanjut ke proses pemeriksaan."
     }
   ];
 
@@ -66,7 +66,7 @@ const FaqSection = () => {
             Pertanyaan yang Sering Diajukan
           </h2>
           <p className="text-secondary text-lg max-w-2xl mx-auto">
-            Temukan jawaban untuk pertanyaan umum seputar layanan konsultasi pajak kami
+            Temukan jawaban dan klarifikasi atas berbagai pertanyaan umum seputar perpajakan.
           </p>
         </div>
 

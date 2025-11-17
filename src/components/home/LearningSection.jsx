@@ -57,10 +57,10 @@ const LearningSection = () => {
             Program Edukasi
           </span>
           <h2 className="text-4xl lg:text-5xl font-bold text-primary mt-4 mb-4">
-            Buku & Materi Pembelajaran Pajak
+            Materi Pembelajaran Pajak
           </h2>
           <p className="text-secondary text-lg max-w-2xl mx-auto">
-            Tingkatkan pengetahuan pajak Anda melalui koleksi buku dan materi pembelajaran yang kami sediakan
+            Tingkatkan pengetahuan pajak Anda melalui materi pembelajaran yang kami sediakan
           </p>
         </div>
 
