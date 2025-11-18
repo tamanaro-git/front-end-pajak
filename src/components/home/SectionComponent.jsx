@@ -41,9 +41,7 @@ Jelajahi dunia perpajakan dengan lebih percaya diri melalui wawasan ahli dan pan
               </div>
 
               <div className="absolute top-1/2 -right-12 w-15 h-15 opacity-70">
-                <svg viewBox="0 0 100 100" className="w-full h-full text-green-400">
-                  <circle cx="50" cy="50" r="45" fill="currentColor" />
-                </svg>
+
               </div>
             </div>
           </div>

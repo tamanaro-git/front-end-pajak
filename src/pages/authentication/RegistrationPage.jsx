@@ -53,12 +53,7 @@ const RegistrationPage = () => {
         
         // Auto redirect after successful registration
         setTimeout(() => {
-          const user = authService.getCurrentUser();
-          if (user?.role === 'admin') {
-            navigate('/admin/dashboard');
-          } else {
-            navigate('/');
-          }
+         navigate('/login');
         }, 2000);
       }
     } catch (err) {

@@ -385,8 +385,9 @@ const ManagementUserAdminNews = () => {
                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none"
                     required
                   >
-                    <option value="editor-journalist">Editor Jurnalis</option>
+                    <option value="editor-journalist">Editor Berita</option>
                     <option value="editor-opinion">Editor Opini</option>
+                    <option value="journalist">Jurnalis</option>
                   </select>
                 </div>
 

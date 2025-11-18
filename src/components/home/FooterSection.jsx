@@ -1,12 +1,9 @@
 
 const FooterSection = () => {
   const socialLinks = [
-    { name: "YouTube", url: "#", icon: "youtube" },
-    { name: "Instagram", url: "#", icon: "instagram" },
-    { name: "TikTok", url: "#", icon: "tiktok" },
-    { name: "Twitter/X", url: "#", icon: "twitter" },
-    { name: "WhatsApp Channel", url: "#", icon: "whatsapp" },
-    { name: "Telegram Group", url: "#", icon: "telegram" }
+    { name: "YouTube", url: "https://www.youtube.com/@pajaxid", icon: "youtube" },
+    { name: "Instagram", url: "https://www.instagram.com/pajax.id/", icon: "instagram" },
+    { name: "WhatsApp Channel", url: "https://whatsapp.com/channel/0029VbBLv2I4o7qIaQtvjH02", icon: "whatsapp" },
   ];
 
   return (

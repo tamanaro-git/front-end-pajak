@@ -12,17 +12,7 @@ const NavbarHome = () => {
     <nav className="fixed top-0 left-0 right-0 bg-primary-dark text-white px-4 md:px-6 py-4 z-50 shadow-lg">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center space-x-2">
-          <div className="flex space-x-1">
-            <div className="w-1 h-6 md:h-8 bg-blue-400 rounded"></div>
-            <div className="w-1 h-6 md:h-8 bg-blue-500 rounded"></div>
-            <div className="w-1 h-6 md:h-8 bg-blue-300 rounded"></div>
-          </div>
-          <div>
-            <h1 className="text-xl md:text-2xl font-bold">midtrans</h1>
-            <p className="text-[10px] md:text-xs text-gray-300">bagian dari <span className="font-semibold">gojek financial</span></p>
-          </div>
-        </div>
+        <img src="/images/1.png" width={120} alt="Pajax Logo" />
 
         {/* Mobile Menu Button */}
         <button 
