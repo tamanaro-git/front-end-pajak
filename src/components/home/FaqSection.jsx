@@ -143,7 +143,7 @@ const FaqSection = () => {
                 <p className="text-secondary text-sm mb-4">
                   Masih ada pertanyaan lain?
                 </p>
-                <a href="/https://www.instagram.com/pajax.id/" className="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-full font-medium transition-colors">
+                <a href="https://www.instagram.com/pajax.id/" target="_blank" className="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-full font-medium transition-colors">
                   Hubungi Kami
                 </a>
               </div>

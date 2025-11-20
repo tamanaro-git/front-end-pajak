@@ -83,14 +83,7 @@ const LoginPage = () => {
       <div className="w-full max-w-md">
         {/* Logo/Brand */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center space-x-2 mb-4">
-            <div className="flex space-x-1">
-              <div className="w-2 h-10 bg-blue-400 rounded"></div>
-              <div className="w-2 h-10 bg-blue-500 rounded"></div>
-              <div className="w-2 h-10 bg-blue-300 rounded"></div>
-            </div>
-            <h1 className="text-3xl font-bold text-primary">Taxmin.id</h1>
-          </div>
+          <img src="/images/pajax-biru.png" alt="Pajax Logo" className="mx-auto " width={120} />
           <p className="text-secondary text-lg">Masuk ke Akun Anda</p>
         </div>
 
