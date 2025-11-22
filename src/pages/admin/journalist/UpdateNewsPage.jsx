@@ -1,4 +1,3 @@
-// filepath: /home/zarif/Project/taxmin/front-end/src/pages/admin/journalist/UpdateNewsPage.jsx
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEditor, EditorContent } from '@tiptap/react';
@@ -8,7 +7,50 @@ import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import TextStyle from '@tiptap/extension-text-style';
 import Color from '@tiptap/extension-color';
+import { Node } from '@tiptap/core';
 import newsService from "../../../services/newsService";
+
+// Custom Iframe Extension untuk mendukung video embed
+const Iframe = Node.create({
+  name: 'iframe',
+  group: 'block',
+  atom: true,
+
+  addAttributes() {
+    return {
+      src: {
+        default: null,
+      },
+      frameborder: {
+        default: 0,
+      },
+      allowfullscreen: {
+        default: true,
+      },
+    };
+  },
+
+  parseHTML() {
+    return [{
+      tag: 'iframe',
+    }];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ['div', { class: 'video-wrapper' }, ['iframe', HTMLAttributes]];
+  },
+
+  addCommands() {
+    return {
+      setIframe: (options) => ({ commands }) => {
+        return commands.insertContent({
+          type: this.name,
+          attrs: options,
+        });
+      },
+    };
+  },
+});
 
 const UpdateNewsPage = () => {
   const { artikelId } = useParams();
@@ -55,7 +97,6 @@ const UpdateNewsPage = () => {
   const editor = useEditor({
     extensions: [
       StarterKit,
-    //   Underline,
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
@@ -63,6 +104,7 @@ const UpdateNewsPage = () => {
         openOnClick: false,
       }),
       Image,
+      Iframe,
       TextStyle,
       Color,
     ],
@@ -185,14 +227,18 @@ const UpdateNewsPage = () => {
       } else if (videoUrl.includes('youtu.be/')) {
         const videoId = videoUrl.split('youtu.be/')[1]?.split('?')[0];
         embedUrl = `https://www.youtube.com/embed/${videoId}`;
+      } else if (videoUrl.includes('vimeo.com/')) {
+        const videoId = videoUrl.split('vimeo.com/')[1]?.split('?')[0];
+        embedUrl = `https://player.vimeo.com/video/${videoId}`;
       }
       
-      // Insert iframe HTML
-      const iframeHtml = `<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; margin: 1rem 0;">
-        <iframe src="${embedUrl}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allowfullscreen></iframe>
-      </div>`;
+      // Insert iframe using custom extension
+      editor?.chain().focus().setIframe({ 
+        src: embedUrl,
+        frameborder: 0,
+        allowfullscreen: true
+      }).run();
       
-      editor?.chain().focus().insertContent(iframeHtml).run();
       setVideoUrl('');
       setShowVideoModal(false);
       showNotification("success", "Video berhasil ditambahkan!");

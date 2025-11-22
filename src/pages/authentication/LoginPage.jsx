@@ -172,7 +172,7 @@ const LoginPage = () => {
                   onChange={(e) => setRememberMe(e.target.checked)}
                   className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
                 />
-                <span className="ml-2 text-sm text-secondary">Ingat saya</span>
+              
               </label>
               <a href="#" className="text-sm font-semibold text-primary hover:text-primary-dark">
                 Lupa password?
