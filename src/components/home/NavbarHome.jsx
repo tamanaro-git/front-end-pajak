@@ -96,8 +96,12 @@ const NavbarHome = () => {
         {/* Desktop Navigation Menu */}
         <div className="hidden lg:flex items-center space-x-8">
           <Link to="/" className="hover:text-secondary">Beranda</Link>
-          <Link to="/learning" className="hover:text-secondary">Pembelajaran</Link>
-          <Link to="/news" className="hover:text-secondary">Sorotan</Link>
+                    <a href="/learning" target="_blank" className="py-2 hover:text-secondary" onClick={toggleMobileMenu}>
+              Pembelajaran
+            </a>
+            <a href="/news" target="_blank" className="py-2 hover:text-secondary" onClick={toggleMobileMenu}>
+              Sorotan
+            </a>
         </div>
 
         {/* Desktop Right Side Actions */}
@@ -172,12 +176,12 @@ const NavbarHome = () => {
             <Link to="/" className="py-2 hover:text-secondary" onClick={toggleMobileMenu}>
               Beranda
             </Link>
-            <Link to="/learning" className="py-2 hover:text-secondary" onClick={toggleMobileMenu}>
+            <a href="/learning" target="_blank" className="py-2 hover:text-secondary" onClick={toggleMobileMenu}>
               Pembelajaran
-            </Link>
-            <Link to="/news" className="py-2 hover:text-secondary" onClick={toggleMobileMenu}>
+            </a>
+            <a href="/news" target="_blank" className="py-2 hover:text-secondary" onClick={toggleMobileMenu}>
               Sorotan
-            </Link>
+            </a>
 
             <div className="pt-4 border-t border-white/20 flex flex-col space-y-3">
               {isLoggedIn ? (

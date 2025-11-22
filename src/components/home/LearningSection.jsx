@@ -180,15 +180,14 @@ const LearningSection = () => {
         {/* View All Button */}
         {books.length > 0 && (
           <div className="text-center mt-12">
-            <button
-              onClick={() => navigate('/learning')}
+            <a href="/learning" target="_blank"
               className="inline-flex items-center bg-white hover:bg-primary hover:text-white text-primary px-8 py-3 rounded-full font-semibold transition-all duration-300 border-2 border-primary shadow-md hover:shadow-lg"
             >
               Lihat Semua Buku Pembelajaran
               <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
-            </button>
+            </a>
           </div>
         )}
       </div>

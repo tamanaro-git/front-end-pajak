@@ -238,6 +238,7 @@ const NewsSection = () => {
           <div className="text-center mt-12">
             <a 
               href="/news"
+              target="_blank"
               className="inline-flex items-center bg-neutral-light hover:bg-primary hover:text-white text-primary px-8 py-3 rounded-full font-semibold transition-all duration-300 border-2 border-primary"
             >
               Lihat Semua Artikel
