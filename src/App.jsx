@@ -52,7 +52,11 @@ function App() {
         <Route path='/news' element={<NewsListPage />} />
         <Route path='/news/:artikelId' element={<NewsDetailPage />} />
         <Route path='/learning' element={<LearningPage />} />
-        <Route path='/learning/:id' element={<LearningDetailPage />} />
+        <Route path='/learning/:id' element={
+          <ProtectedRoute allowedRoles={['user']}>  
+            <LearningDetailPage />
+          </ProtectedRoute>
+        } />
         <Route path='/unauthorized' element={<UnauthorizedPage />} />
 
         {/* Admin Routes - Protected by Role */}
