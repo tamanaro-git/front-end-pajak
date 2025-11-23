@@ -31,7 +31,7 @@ const UpdateOpinionPage = lazy(() => import('./pages/admin/users/UpdateOpinionPa
 const NewsVerificationPage = lazy(() => import('./pages/admin/editor/journalist/index'));
 const OpinionVerificationPage = lazy(() => import('./pages/admin/editor/opinion/index'));
 const ProfilePage = lazy(() => import('./pages/admin/profile/index'));
-
+const LoginAdminPage = lazy(() => import('./pages/authentication/LoginAdminPage'));
 // Loading component
 const LoadingSpinner = () => (
   <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -119,7 +119,9 @@ function App() {
           
           {/* Profile */}
           <Route path="profile" element={<ProfilePage />} />
+
         </Route>
+          <Route path="/login-admin" element={<LoginAdminPage />} />
       </Routes>
     </Suspense>
   );
