@@ -1,4 +1,3 @@
-// filepath: /home/zarif/Project/taxmin/front-end/src/pages/admin/learning/UpdateSubchapter.jsx
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useEditor, EditorContent } from '@tiptap/react';
@@ -8,8 +7,51 @@ import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import TextStyle from '@tiptap/extension-text-style';
 import Color from '@tiptap/extension-color';
+import { Node } from '@tiptap/core';
 import subchapterService from "../../../services/subchapterService";
 import chapterService from "../../../services/chapterService";
+
+// Custom Iframe Extension untuk mendukung video embed
+const Iframe = Node.create({
+  name: 'iframe',
+  group: 'block',
+  atom: true,
+
+  addAttributes() {
+    return {
+      src: {
+        default: null,
+      },
+      frameborder: {
+        default: 0,
+      },
+      allowfullscreen: {
+        default: true,
+      },
+    };
+  },
+
+  parseHTML() {
+    return [{
+      tag: 'iframe',
+    }];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ['div', { class: 'video-wrapper' }, ['iframe', HTMLAttributes]];
+  },
+
+  addCommands() {
+    return {
+      setIframe: (options) => ({ commands }) => {
+        return commands.insertContent({
+          type: this.name,
+          attrs: options,
+        });
+      },
+    };
+  },
+});
 
 const UpdateSubchapter = () => {
   const { chapterId, subchapterId } = useParams();
@@ -45,6 +87,7 @@ const UpdateSubchapter = () => {
         openOnClick: false,
       }),
       Image,
+      Iframe,
       TextStyle,
       Color,
     ],
@@ -138,14 +181,18 @@ const UpdateSubchapter = () => {
       } else if (videoUrl.includes('youtu.be/')) {
         const videoId = videoUrl.split('youtu.be/')[1]?.split('?')[0];
         embedUrl = `https://www.youtube.com/embed/${videoId}`;
+      } else if (videoUrl.includes('vimeo.com/')) {
+        const videoId = videoUrl.split('vimeo.com/')[1]?.split('?')[0];
+        embedUrl = `https://player.vimeo.com/video/${videoId}`;
       }
       
-      // Insert iframe HTML
-      const iframeHtml = `<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; margin: 1rem 0;">
-        <iframe src="${embedUrl}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allowfullscreen></iframe>
-      </div>`;
+      // Insert iframe using custom extension
+      editor?.chain().focus().setIframe({ 
+        src: embedUrl,
+        frameborder: 0,
+        allowfullscreen: true
+      }).run();
       
-      editor?.chain().focus().insertContent(iframeHtml).run();
       setVideoUrl('');
       setShowVideoModal(false);
       showNotification("success", "Video berhasil ditambahkan!");
@@ -635,11 +682,7 @@ const UpdateSubchapter = () => {
                 className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-teal-500 focus:outline-none mb-4"
                 autoFocus
               />
-              <div className="bg-blue-50 border-l-4 border-blue-400 p-3 mb-4 rounded text-sm">
-                <p className="text-blue-800">
-                  <strong>Contoh:</strong> https://example.com/image.jpg
-                </p>
-              </div>
+
               <div className="flex gap-3">
                 <button
                   onClick={() => { setShowImageModal(false); setImageUrl(''); }}
@@ -689,7 +732,6 @@ const UpdateSubchapter = () => {
                 <ul className="list-disc list-inside text-blue-700 space-y-1">
                   <li>https://www.youtube.com/watch?v=VIDEO_ID</li>
                   <li>https://youtu.be/VIDEO_ID</li>
-                  <li>https://www.youtube.com/embed/VIDEO_ID</li>
                 </ul>
               </div>
               <div className="flex gap-3">
@@ -717,15 +759,14 @@ const UpdateSubchapter = () => {
           from { transform: translateX(100%); opacity: 0; }
           to { transform: translateX(0); opacity: 1; }
         }
+        
         @keyframes scale-in {
-          from {
-            transform: scale(0.9);
-            opacity: 0;
-          }
-          to {
-            transform: scale(1);
-            opacity: 1;
-          }
+          from { transform: scale(0.9); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+        
+        .animate-slide-in-right {
+          animation: slide-in-right 0.3s ease-out;
         }
         
         .animate-scale-in {
@@ -841,11 +882,31 @@ const UpdateSubchapter = () => {
           margin: 2rem 0;
         }
         
-        /* Video iframe responsiveness */
+        /* Video Wrapper for responsive embed */
+        .ProseMirror .video-wrapper {
+          position: relative;
+          padding-bottom: 56.25%;
+          height: 0;
+          overflow: hidden;
+          max-width: 100%;
+          margin: 1rem 0;
+          border-radius: 0.5rem;
+          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        
+        .ProseMirror .video-wrapper iframe {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          border: 0;
+          border-radius: 0.5rem;
+        }
+        
         .ProseMirror iframe {
           max-width: 100%;
           border-radius: 0.5rem;
-          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
         }
       `}</style>
     </div>

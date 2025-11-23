@@ -60,6 +60,8 @@ const LoginPage = () => {
       
       if (response.status === 'success') {
         const user = authService.getCurrentUser();
+        localStorage.setItem('role', user.role);
+        
         if (user.role === 'user') {
           navigate('/admin/opinions');
         } else {

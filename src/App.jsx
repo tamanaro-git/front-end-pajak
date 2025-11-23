@@ -30,6 +30,7 @@ const AddOpinionPage = lazy(() => import('./pages/admin/users/AddOpinionPage'));
 const UpdateOpinionPage = lazy(() => import('./pages/admin/users/UpdateOpinionPage'));
 const NewsVerificationPage = lazy(() => import('./pages/admin/editor/journalist/index'));
 const OpinionVerificationPage = lazy(() => import('./pages/admin/editor/opinion/index'));
+const ProfilePage = lazy(() => import('./pages/admin/profile/index'));
 
 // Loading component
 const LoadingSpinner = () => (
@@ -115,6 +116,9 @@ function App() {
 
           <Route path='verifications/news' element={<NewsVerificationPage />} />
           <Route path='verifications/opinions' element={<OpinionVerificationPage />} />
+          
+          {/* Profile */}
+          <Route path="profile" element={<ProfilePage />} />
         </Route>
       </Routes>
     </Suspense>
