@@ -8,17 +8,19 @@ const LearningPage = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 9, totalPages: 0 });
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetchBooks();
   }, []);
 
-  const fetchBooks = async (page = 1) => {
+  const fetchBooks = async (page = 1, search = "") => {
     setLoading(true);
     try {
       const response = await bookService.getAllBooks({
         page,
-        limit: 9
+        limit: 9,
+        search: search || searchQuery
       });
       
       if (response.status === 'success') {
@@ -30,6 +32,20 @@ const LearningPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchBooks(1, searchQuery);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    fetchBooks(1, "");
   };
 
   const handleBookClick = (bookId) => {
@@ -89,22 +105,52 @@ const LearningPage = () => {
             pengetahuan dan keterampilan perpajakan Anda
           </p>
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button className="flex items-center space-x-2 bg-yellow-500 hover:bg-yellow-600 text-primary-dark px-8 py-4 rounded-lg font-bold text-lg transition-colors shadow-lg hover:shadow-xl">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>Mulai Belajar</span>
-            </button>
+          {/* Search Bar */}
+          <div className="max-w-3xl mx-auto">
+            <form onSubmit={handleSearch} className="relative">
+              <div className="relative flex items-center">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  placeholder="Cari buku pembelajaran (contoh: Pajak Penghasilan, PPh, PPN...)"
+                  className="w-full px-6 py-4 pr-32 text-primary-dark bg-yellow-400 placeholder-primary-dark/70 rounded-full border-2 border-yellow-500 focus:border-yellow-300 focus:outline-none shadow-lg text-base font-semibold"
+                />
+                <div className="absolute right-2 flex items-center space-x-2">
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={handleClearSearch}
+                      className="p-2 text-primary-dark hover:text-red-600 transition-colors"
+                      title="Clear search"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+                  <button
+                    type="submit"
+                    className="bg-primary-dark hover:bg-primary text-white px-6 py-2 rounded-full font-bold transition-colors shadow-md hover:shadow-lg flex items-center space-x-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <span>Cari</span>
+                  </button>
+                </div>
+              </div>
+            </form>
             
-            <button className="flex items-center space-x-2 bg-transparent border-2 border-white hover:bg-white hover:text-primary-dark text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <span>Lihat Jadwal</span>
-            </button>
+            {/* Search Tips */}
+            <div className="mt-4 flex items-center justify-center space-x-4 text-sm text-gray-300">
+              <div className="flex items-center space-x-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Cari berdasarkan judul atau kata kunci</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -122,8 +168,26 @@ const LearningPage = () => {
       {/* Additional Sections Can Go Here */}
       <section className="max-w-7xl mx-auto px-6 py-12">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-primary mb-4">Koleksi Buku Pembelajaran</h2>
-          <p className="text-secondary">Pilih buku yang ingin Anda pelajari dan tingkatkan pengetahuan perpajakan Anda</p>
+          <h2 className="text-3xl font-bold text-primary mb-4">
+            {searchQuery ? `Hasil Pencarian: "${searchQuery}"` : 'Koleksi Buku Pembelajaran'}
+          </h2>
+          <p className="text-secondary">
+            {searchQuery 
+              ? `Menampilkan ${pagination.total} buku yang cocok dengan pencarian Anda` 
+              : 'Pilih buku yang ingin Anda pelajari dan tingkatkan pengetahuan perpajakan Anda'
+            }
+          </p>
+          {searchQuery && (
+            <button
+              onClick={handleClearSearch}
+              className="mt-3 text-primary hover:text-primary-dark font-semibold text-sm flex items-center space-x-1 mx-auto"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <span>Hapus Pencarian</span>
+            </button>
+          )}
         </div>
 
         {/* Loading State */}
@@ -134,10 +198,25 @@ const LearningPage = () => {
         ) : books.length === 0 ? (
           <div className="text-center py-20">
             <svg className="w-24 h-24 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">Belum Ada Buku</h3>
-            <p className="text-gray-500">Buku pembelajaran akan segera tersedia</p>
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">
+              {searchQuery ? 'Tidak Ada Hasil' : 'Belum Ada Buku'}
+            </h3>
+            <p className="text-gray-500 mb-4">
+              {searchQuery 
+                ? `Tidak ditemukan buku dengan kata kunci "${searchQuery}"` 
+                : 'Buku pembelajaran akan segera tersedia'
+              }
+            </p>
+            {searchQuery && (
+              <button
+                onClick={handleClearSearch}
+                className="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              >
+                Lihat Semua Buku
+              </button>
+            )}
           </div>
         ) : (
           <>
@@ -254,7 +333,7 @@ const LearningPage = () => {
             {pagination.totalPages > 1 && (
               <div className="flex justify-center items-center mt-12 space-x-2">
                 <button
-                  onClick={() => fetchBooks(pagination.page - 1)}
+                  onClick={() => fetchBooks(pagination.page - 1, searchQuery)}
                   disabled={pagination.page === 1}
                   className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-neutral-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
@@ -265,7 +344,7 @@ const LearningPage = () => {
                   {[...Array(pagination.totalPages)].map((_, i) => (
                     <button
                       key={i + 1}
-                      onClick={() => fetchBooks(i + 1)}
+                      onClick={() => fetchBooks(i + 1, searchQuery)}
                       className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
                         pagination.page === i + 1
                           ? 'bg-primary text-white'
@@ -278,7 +357,7 @@ const LearningPage = () => {
                 </div>
 
                 <button
-                  onClick={() => fetchBooks(pagination.page + 1)}
+                  onClick={() => fetchBooks(pagination.page + 1, searchQuery)}
                   disabled={pagination.page === pagination.totalPages}
                   className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-neutral-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >

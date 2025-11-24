@@ -61,9 +61,9 @@ const AboutSection = () => {
             </p>
 
             <div className="pt-4">
-              <Link to="/learning" className="bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-full font-medium transition-colors">
+              <a href="/learning" target="_blank" rel="noopener noreferrer" className="bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-full font-medium transition-colors">
                 Pelajari Lebih Lanjut
-              </Link>
+              </a>
             </div>
           </div>
 

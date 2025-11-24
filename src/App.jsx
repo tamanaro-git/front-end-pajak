@@ -54,9 +54,9 @@ function App() {
         <Route path='/news/:artikelId' element={<NewsDetailPage />} />
         <Route path='/learning' element={<LearningPage />} />
         <Route path='/learning/:id' element={
-          <ProtectedRoute allowedRoles={['user']}>  
+          // <ProtectedRoute allowedRoles={['user']}>  
             <LearningDetailPage />
-          </ProtectedRoute>
+          // </ProtectedRoute>
         } />
         <Route path='/unauthorized' element={<UnauthorizedPage />} />
 

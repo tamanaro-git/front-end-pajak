@@ -76,7 +76,7 @@ const UpdateSubchapter = () => {
     orderIndex: 1
   });
 
-  // TipTap Editor
+  // TipTap Editor for Content
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -94,6 +94,27 @@ const UpdateSubchapter = () => {
     content: '',
     onUpdate: ({ editor }) => {
       setFormData(prev => ({ ...prev, content: editor.getHTML() }));
+    },
+  });
+
+  // TipTap Editor for Regulation
+  const regulationEditor = useEditor({
+    extensions: [
+      StarterKit,
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+      }),
+      Link.configure({
+        openOnClick: false,
+      }),
+      Image,
+      Iframe,
+      TextStyle,
+      Color,
+    ],
+    content: '',
+    onUpdate: ({ editor }) => {
+      setFormData(prev => ({ ...prev, regulation: editor.getHTML() }));
     },
   });
 
@@ -117,6 +138,7 @@ const UpdateSubchapter = () => {
             orderIndex: subchapterData.orderIndex || 0
           });
           editor?.commands.setContent(subchapterData.content || '');
+          regulationEditor?.commands.setContent(subchapterData.regulation || '');
         }
       } catch (error) {
         showNotification("error", error.message || "Gagal memuat data");
@@ -126,7 +148,7 @@ const UpdateSubchapter = () => {
     };
 
     fetchData();
-  }, [chapterId, subchapterId, editor]);
+  }, [chapterId, subchapterId, editor, regulationEditor]);
 
   const showNotification = (type, message) => {
     setNotification({ show: true, type, message });
@@ -624,20 +646,48 @@ const UpdateSubchapter = () => {
           <p className="text-xs text-secondary mt-1">Ringkasan akan ditampilkan sebagai preview</p>
         </div>
 
-        {/* Regulation */}
+        {/* Regulation - Text Editor */}
         <div>
           <label className="block text-sm font-semibold text-primary mb-2">
             Peraturan/Regulasi Terkait
           </label>
-          <textarea
-            name="regulation"
-            value={formData.regulation}
-            onChange={handleChange}
-            rows={2}
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none"
-            placeholder="Contoh: UU No. 28 Tahun 2007 tentang Ketentuan Umum dan Tata Cara Perpajakan"
-          />
-          <p className="text-xs text-secondary mt-1">Referensi hukum atau peraturan yang relevan</p>
+          
+          {/* Toolbar for Regulation */}
+          <div className="border-2 border-gray-300 rounded-t-lg bg-gradient-to-r from-gray-50 to-gray-100 p-3">
+            <div className="flex flex-wrap gap-1">
+              <button type="button" onClick={() => regulationEditor?.chain().focus().toggleBold().run()} className={`px-3 py-2 rounded-lg hover:bg-white transition-all font-bold ${regulationEditor?.isActive('bold') ? 'bg-blue-500 text-white shadow-md' : 'bg-white'}`} title="Bold">B</button>
+              <button type="button" onClick={() => regulationEditor?.chain().focus().toggleItalic().run()} className={`px-3 py-2 rounded-lg hover:bg-white transition-all italic ${regulationEditor?.isActive('italic') ? 'bg-blue-500 text-white shadow-md' : 'bg-white'}`} title="Italic">I</button>
+              <button type="button" onClick={() => regulationEditor?.chain().focus().toggleUnderline().run()} className={`px-3 py-2 rounded-lg hover:bg-white transition-all underline ${regulationEditor?.isActive('underline') ? 'bg-blue-500 text-white shadow-md' : 'bg-white'}`} title="Underline">U</button>
+              
+              <div className="w-px bg-gray-400 mx-2"></div>
+              
+              <button type="button" onClick={() => regulationEditor?.chain().focus().toggleBulletList().run()} className={`px-3 py-2 rounded-lg hover:bg-white transition-all ${regulationEditor?.isActive('bulletList') ? 'bg-green-500 text-white shadow-md' : 'bg-white'}`} title="Bullet List"><span className="font-bold">• List</span></button>
+              <button type="button" onClick={() => regulationEditor?.chain().focus().toggleOrderedList().run()} className={`px-3 py-2 rounded-lg hover:bg-white transition-all ${regulationEditor?.isActive('orderedList') ? 'bg-green-500 text-white shadow-md' : 'bg-white'}`} title="Numbered List"><span className="font-bold">1. List</span></button>
+              
+              <div className="w-px bg-gray-400 mx-2"></div>
+              
+              <button type="button" onClick={() => regulationEditor?.chain().focus().undo().run()} disabled={!regulationEditor?.can().undo()} className="px-3 py-2 rounded-lg hover:bg-white transition-all bg-white disabled:opacity-50 disabled:cursor-not-allowed" title="Undo">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
+              </button>
+              <button type="button" onClick={() => regulationEditor?.chain().focus().redo().run()} disabled={!regulationEditor?.can().redo()} className="px-3 py-2 rounded-lg hover:bg-white transition-all bg-white disabled:opacity-50 disabled:cursor-not-allowed" title="Redo">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6" /></svg>
+              </button>
+              
+              <div className="w-px bg-gray-400 mx-2"></div>
+              
+              <button type="button" onClick={() => regulationEditor?.chain().focus().clearNodes().unsetAllMarks().run()} className="px-3 py-2 rounded-lg hover:bg-red-50 transition-all bg-white text-red-600 text-sm font-semibold" title="Clear Formatting">🗑️ Clear</button>
+            </div>
+          </div>
+
+          {/* Editor Content for Regulation */}
+          <div className="border-2 border-t-0 border-gray-300 rounded-b-lg bg-white shadow-inner">
+            <EditorContent 
+              editor={regulationEditor} 
+              className="prose prose-sm max-w-none p-4 min-h-[150px] focus:outline-none"
+            />
+          </div>
+          
+          <p className="text-xs text-secondary mt-1">Referensi hukum atau peraturan yang relevan (gunakan list untuk beberapa peraturan)</p>
         </div>
 
 
