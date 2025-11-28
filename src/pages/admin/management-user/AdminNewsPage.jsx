@@ -12,6 +12,10 @@ const ManagementUserAdminNews = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
 
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredUsers, setFilteredUsers] = useState([]);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -31,12 +35,37 @@ const ManagementUserAdminNews = () => {
       
       if (response.status === 'success') {
         setUsers(response.data || []);
+        setFilteredUsers(response.data || []); // Initialize filtered users
       }
     } catch (error) {
       showNotification("error", error.message || "Gagal memuat data users");
     } finally {
       setLoading(false);
     }
+  };
+
+  // Filter users based on search query
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setFilteredUsers(users);
+    } else {
+      const filtered = users.filter(user => 
+        user.fullName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.role?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredUsers(filtered);
+    }
+  }, [searchQuery, users]);
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  // Clear search
+  const handleClearSearch = () => {
+    setSearchQuery("");
   };
 
   const showNotification = (type, message) => {
@@ -196,6 +225,39 @@ const ManagementUserAdminNews = () => {
         </button>
       </div>
 
+      {/* Search Bar */}
+      <div className="bg-white rounded-xl shadow-md p-6">
+        <div className="relative max-w-md">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="w-full pl-10 pr-10 py-3 border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none"
+            placeholder="Cari berdasarkan nama, email, atau role..."
+          />
+          {searchQuery && (
+            <button
+              onClick={handleClearSearch}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+            >
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
+        {searchQuery && (
+          <div className="mt-2 text-sm text-gray-600">
+            Ditemukan {filteredUsers.length} dari {users.length} user
+          </div>
+        )}
+      </div>
+
       {/* Users Table */}
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
         <div className="overflow-x-auto">
@@ -226,8 +288,28 @@ const ManagementUserAdminNews = () => {
                     Belum ada data user
                   </td>
                 </tr>
+              ) : filteredUsers.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="px-6 py-12 text-center text-secondary">
+                    <div className="flex flex-col items-center space-y-3">
+                      <svg className="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                      <div>
+                        <p className="font-semibold">Tidak ditemukan hasil pencarian</p>
+                        <p className="text-sm">Coba ubah kata kunci pencarian</p>
+                      </div>
+                      <button
+                        onClick={handleClearSearch}
+                        className="text-primary hover:text-primary-dark font-medium text-sm underline"
+                      >
+                        Hapus filter
+                      </button>
+                    </div>
+                  </td>
+                </tr>
               ) : (
-                users.map((user) => (
+                filteredUsers.map((user) => (
                   <tr key={user.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-3">
