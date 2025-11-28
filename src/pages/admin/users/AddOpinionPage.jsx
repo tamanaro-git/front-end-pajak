@@ -70,6 +70,7 @@ const AddOpinionPage = () => {
   const [formData, setFormData] = useState({
     judul: "",
     kategori: "",
+    images: "",
     isiOpini: "",
     tags: [],
     status: "draft" // Default status
@@ -285,6 +286,41 @@ const AddOpinionPage = () => {
               ))}
             </select>
           </div>
+        </div>
+
+        {/* Image URL */}
+        <div>
+          <label className="block text-sm font-semibold text-primary mb-2">
+            Gambar Utama (URL)
+          </label>
+          <input
+            type="url"
+            name="images"
+            value={formData.images}
+            onChange={handleChange}
+            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none"
+            placeholder="https://example.com/images/opinion.jpg"
+          />
+          <p className="text-xs text-secondary mt-1">
+            Masukkan URL gambar yang akan menjadi gambar utama opini
+          </p>
+          {formData.images && (
+            <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+              <p className="text-xs text-gray-600 mb-2">Preview:</p>
+              <img
+                src={formData.images}
+                alt="Preview"
+                className="w-full max-w-sm h-32 object-cover rounded-lg border border-gray-300"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'block';
+                }}
+              />
+              <div className="hidden text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
+                Gagal memuat gambar. Pastikan URL valid dan dapat diakses.
+              </div>
+            </div>
+          )}
         </div>
 
         {/* TipTap Editor */}

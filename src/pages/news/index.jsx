@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import newsService from "../../services/newsService";
 
 const NewsListPage = () => {
@@ -54,12 +54,13 @@ const NewsListPage = () => {
         status: 'published'
       };
 
-      if (selectedCategory) {
-        params.kategori = selectedCategory;
-      }
-
+      // If subcategory is selected, use only subcategory filter
       if (selectedSubCategory) {
         params.subKategori = selectedSubCategory;
+        // Don't add kategori when subcategory is selected
+      } else if (selectedCategory) {
+        // Only add main category if no subcategory is selected
+        params.kategori = selectedCategory;
       }
 
       if (searchQuery) {
@@ -222,13 +223,13 @@ const NewsListPage = () => {
               </svg>
               <span>Mulai Membaca</span>
             </button>
-            
-            <button className="flex items-center space-x-2 bg-transparent border-2 border-white hover:bg-white hover:text-primary-dark text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors">
+
+            <Link to="/login" className="flex items-center space-x-2 bg-transparent border-2 border-white hover:bg-white hover:text-primary-dark text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
               <span>Gabung Sekarang</span>
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -305,7 +306,7 @@ const NewsListPage = () => {
                       setSelectedSubCategory('');
                     }}
                     className={`w-full text-left px-4 py-2 rounded-lg font-medium transition-colors ${
-                      selectedCategory === ''
+                      selectedCategory === '' && selectedSubCategory === ''
                         ? 'bg-primary text-white'
                         : 'hover:bg-gray-100 text-gray-700'
                     }`}
@@ -318,17 +319,21 @@ const NewsListPage = () => {
                     <div key={category} className="space-y-2">
                       <button
                         onClick={() => {
-                          if (selectedCategory === category) {
+                          if (selectedCategory === category && !selectedSubCategory) {
+                            // If same category clicked and no subcategory, reset all
                             setSelectedCategory('');
                             setSelectedSubCategory('');
                           } else {
+                            // Select new category and reset subcategory
                             setSelectedCategory(category);
                             setSelectedSubCategory('');
                           }
                         }}
                         className={`w-full text-left px-4 py-2 rounded-lg font-semibold transition-colors flex items-center justify-between ${
-                          selectedCategory === category
+                          selectedCategory === category && !selectedSubCategory
                             ? 'bg-primary text-white'
+                            : selectedCategory === category && selectedSubCategory
+                            ? 'bg-primary-dark text-white'
                             : 'hover:bg-gray-100 text-gray-700'
                         }`}
                       >
@@ -351,10 +356,19 @@ const NewsListPage = () => {
                       {selectedCategory === category && availableSubKategori.length > 0 && (
                         <div className="ml-4 space-y-1 border-l-2 border-primary pl-3">
                           <button
-                            onClick={() => setSelectedSubCategory('')}
+                            onClick={() => {
+                              if (selectedSubCategory === '') {
+                                // Already showing all for this category, so reset everything
+                                setSelectedCategory('');
+                                setSelectedSubCategory('');
+                              } else {
+                                // Reset subcategory to show all for this category
+                                setSelectedSubCategory('');
+                              }
+                            }}
                             className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                              selectedSubCategory === ''
-                                ? 'bg-primary-dark text-white'
+                              selectedSubCategory === '' && selectedCategory === category
+                                ? 'bg-primary text-white'
                                 : 'hover:bg-gray-100 text-gray-600'
                             }`}
                           >
@@ -363,7 +377,15 @@ const NewsListPage = () => {
                           {availableSubKategori.map((subCategory) => (
                             <button
                               key={subCategory}
-                              onClick={() => setSelectedSubCategory(subCategory)}
+                              onClick={() => {
+                                if (selectedSubCategory === subCategory) {
+                                  // If same subcategory clicked, reset to show all in category
+                                  setSelectedSubCategory('');
+                                } else {
+                                  // Select new subcategory
+                                  setSelectedSubCategory(subCategory);
+                                }
+                              }}
                               className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                                 selectedSubCategory === subCategory
                                   ? 'bg-primary-dark text-white'

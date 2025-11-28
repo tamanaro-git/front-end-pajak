@@ -9,7 +9,17 @@ const newsService = {
     if (params.page) queryParams.append('page', params.page);
     if (params.limit) queryParams.append('limit', params.limit);
     if (params.status) queryParams.append('status', params.status);
-    if (params.kategori) queryParams.append('kategori', params.kategori);
+    
+    // Handle category and subcategory filtering
+    // If subcategory is selected, use only subcategory filter
+    if (params.subKategori) {
+      queryParams.append('subKategori', params.subKategori);
+      // Don't add kategori when subcategory is selected
+    } else if (params.kategori) {
+      // Only add main category if no subcategory is selected
+      queryParams.append('kategori', params.kategori);
+    }
+    
     if (params.search) queryParams.append('search', params.search);
     
     const queryString = queryParams.toString();
