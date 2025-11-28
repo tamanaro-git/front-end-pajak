@@ -75,6 +75,14 @@ const AddOpinionPage = () => {
     status: "draft" // Default status
   });
 
+  // Kategori options
+  const kategoriOptions = [
+    "Ekonomi & Bisnis",
+    "Investasi", 
+    "Perpajakan",
+    "Kepabeanan & Cukai"
+  ];
+
   // TipTap Editor
   const editor = useEditor({
     extensions: [
@@ -263,15 +271,19 @@ const AddOpinionPage = () => {
             <label className="block text-sm font-semibold text-primary mb-2">
               Kategori
             </label>
-            <input
-              type="text"
+            <select
               name="kategori"
               value={formData.kategori}
               onChange={handleChange}
               className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none"
-              placeholder="Contoh: Kebijakan Pajak"
-              maxLength={100}
-            />
+            >
+              <option value="">Pilih Kategori</option>
+              {kategoriOptions.map((kategori) => (
+                <option key={kategori} value={kategori}>
+                  {kategori}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 

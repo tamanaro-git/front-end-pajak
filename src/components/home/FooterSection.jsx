@@ -33,6 +33,7 @@ Anda dapat memantau status penanganannya secara langsung melalui dashboard
               <a
                 key={index}
                 href={link.url}
+                target="_blank"
                 className="text-white hover:text-yellow-400 transition-colors font-medium text-sm md:text-base"
               >
                 {link.name}

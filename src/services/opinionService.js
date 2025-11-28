@@ -19,6 +19,23 @@ const opinionService = {
     return response.data;
   },
 
+  // Get opinions by user ID with pagination and filters
+  getOpinionsByUser: async (userId, params = {}) => {
+    const queryParams = new URLSearchParams();
+    
+    if (params.page) queryParams.append('page', params.page);
+    if (params.limit) queryParams.append('limit', params.limit);
+    if (params.status) queryParams.append('status', params.status);
+    if (params.kategori) queryParams.append('kategori', params.kategori);
+    if (params.search) queryParams.append('search', params.search);
+    
+    const queryString = queryParams.toString();
+    const url = `/opinions/user/${userId}${queryString ? `?${queryString}` : ''}`;
+    
+    const response = await api.get(url);
+    return response.data;
+  },
+
   // Get opinion by ID
   getOpinionById: async (id) => {
     const response = await api.get(`/opinions/${id}`);

@@ -13,18 +13,19 @@ const NewsListPage = () => {
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
 
-  const categories = [
-    'Perpajakan',
-    'Ekonomi',
-    'Pajak Penghasilan',
-    'PPN',
-    'PPh',
-    'KUP',
-    'Coretax',
-    'Perspective'
-  ];
+  const kategoriOptions = ["Perpajakan", "Ekonomi", "Perspective"];
+  
+  const subKategoriMapping = {
+    "Perpajakan": ["KUP", "PPh", "PPN", "Coretax", "Kepabeanan & Cukai", "Lainnya"],
+    "Ekonomi": ["Bisnis dan Investasi", "Nasional", "Internasional", "Lainnya"],
+    "Perspective": ["Ekonomi", "Bisnis dan Investasi", "PPh", "PPN", "KUP", "Coretax", "Kepabeanan & Cukai"]
+  };
+
+  // Get available sub-categories based on selected category
+  const availableSubKategori = selectedCategory ? subKategoriMapping[selectedCategory] || [] : [];
 
   const filters = [
     { id: 'all', label: 'Semua Berita', icon: '📰' },
@@ -41,7 +42,7 @@ const NewsListPage = () => {
   useEffect(() => {
     fetchNews(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCategory, activeFilter]);
+  }, [selectedCategory, selectedSubCategory, activeFilter]);
 
   const fetchNews = async (page = pagination.page) => {
     try {
@@ -55,6 +56,10 @@ const NewsListPage = () => {
 
       if (selectedCategory) {
         params.kategori = selectedCategory;
+      }
+
+      if (selectedSubCategory) {
+        params.subKategori = selectedSubCategory;
       }
 
       if (searchQuery) {
@@ -128,18 +133,33 @@ const NewsListPage = () => {
     });
   };
 
-  const getCategoryColor = (category) => {
-    const colors = {
+  const getCategoryColor = (category, subCategory) => {
+    // Primary category colors
+    const categoryColors = {
       "Perpajakan": "bg-blue-100 text-blue-800",
       "Ekonomi": "bg-green-100 text-green-800",
-      "Perspective": "bg-purple-100 text-purple-800",
-      "Pajak Penghasilan": "bg-blue-100 text-blue-800",
-      "PPN": "bg-green-100 text-green-800",
-      "PPh": "bg-indigo-100 text-indigo-800",
-      "KUP": "bg-yellow-100 text-yellow-800",
-      "Coretax": "bg-pink-100 text-pink-800"
+      "Perspective": "bg-purple-100 text-purple-800"
     };
-    return colors[category] || "bg-gray-100 text-gray-800";
+
+    // Sub-category specific colors
+    const subCategoryColors = {
+      "KUP": "bg-yellow-100 text-yellow-800",
+      "PPh": "bg-indigo-100 text-indigo-800", 
+      "PPN": "bg-pink-100 text-pink-800",
+      "Coretax": "bg-orange-100 text-orange-800",
+      "Kepabeanan & Cukai": "bg-teal-100 text-teal-800",
+      "Bisnis dan Investasi": "bg-emerald-100 text-emerald-800",
+      "Nasional": "bg-red-100 text-red-800",
+      "Internasional": "bg-sky-100 text-sky-800"
+    };
+
+    // If sub-category exists and has specific color, use it
+    if (subCategory && subCategoryColors[subCategory]) {
+      return subCategoryColors[subCategory];
+    }
+
+    // Otherwise use category color
+    return categoryColors[category] || "bg-gray-100 text-gray-800";
   };
 
   const truncateText = (text, maxLength = 120) => {
@@ -277,9 +297,13 @@ const NewsListPage = () => {
               {/* Category Filter */}
               <div className="bg-white rounded-xl shadow-md p-6">
                 <h3 className="text-lg font-bold text-primary mb-4">🏷️ Kategori</h3>
-                <div className="space-y-2">
+                <div className="space-y-3">
+                  {/* Reset All Categories */}
                   <button
-                    onClick={() => setSelectedCategory('')}
+                    onClick={() => {
+                      setSelectedCategory('');
+                      setSelectedSubCategory('');
+                    }}
                     className={`w-full text-left px-4 py-2 rounded-lg font-medium transition-colors ${
                       selectedCategory === ''
                         ? 'bg-primary text-white'
@@ -288,18 +312,70 @@ const NewsListPage = () => {
                   >
                     Semua Kategori
                   </button>
-                  {categories.map((category) => (
-                    <button
-                      key={category}
-                      onClick={() => setSelectedCategory(category)}
-                      className={`w-full text-left px-4 py-2 rounded-lg font-medium transition-colors ${
-                        selectedCategory === category
-                          ? 'bg-primary text-white'
-                          : 'hover:bg-gray-100 text-gray-700'
-                      }`}
-                    >
-                      {category}
-                    </button>
+
+                  {/* Main Categories */}
+                  {kategoriOptions.map((category) => (
+                    <div key={category} className="space-y-2">
+                      <button
+                        onClick={() => {
+                          if (selectedCategory === category) {
+                            setSelectedCategory('');
+                            setSelectedSubCategory('');
+                          } else {
+                            setSelectedCategory(category);
+                            setSelectedSubCategory('');
+                          }
+                        }}
+                        className={`w-full text-left px-4 py-2 rounded-lg font-semibold transition-colors flex items-center justify-between ${
+                          selectedCategory === category
+                            ? 'bg-primary text-white'
+                            : 'hover:bg-gray-100 text-gray-700'
+                        }`}
+                      >
+                        <span>{category}</span>
+                        {subKategoriMapping[category] && (
+                          <svg 
+                            className={`w-4 h-4 transition-transform ${
+                              selectedCategory === category ? 'rotate-180' : ''
+                            }`}
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        )}
+                      </button>
+
+                      {/* Sub Categories */}
+                      {selectedCategory === category && availableSubKategori.length > 0 && (
+                        <div className="ml-4 space-y-1 border-l-2 border-primary pl-3">
+                          <button
+                            onClick={() => setSelectedSubCategory('')}
+                            className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                              selectedSubCategory === ''
+                                ? 'bg-primary-dark text-white'
+                                : 'hover:bg-gray-100 text-gray-600'
+                            }`}
+                          >
+                            Semua {category}
+                          </button>
+                          {availableSubKategori.map((subCategory) => (
+                            <button
+                              key={subCategory}
+                              onClick={() => setSelectedSubCategory(subCategory)}
+                              className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                selectedSubCategory === subCategory
+                                  ? 'bg-primary-dark text-white'
+                                  : 'hover:bg-gray-100 text-gray-600'
+                              }`}
+                            >
+                              {subCategory}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </div>
               </div>
@@ -354,10 +430,18 @@ const NewsListPage = () => {
             <div className="mb-6 flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold text-primary">
-                  {selectedCategory || 'Semua'} Berita
+                  {selectedSubCategory 
+                    ? `${selectedCategory} - ${selectedSubCategory}` 
+                    : selectedCategory || 'Semua'} Berita
                 </h2>
                 <p className="text-secondary text-sm">
                   Menampilkan {news.length} dari {pagination.total} artikel
+                  {selectedCategory && (
+                    <span className="ml-2 text-xs">
+                      📂 {selectedCategory}
+                      {selectedSubCategory && ` > ${selectedSubCategory}`}
+                    </span>
+                  )}
                 </p>
               </div>
             </div>
@@ -405,11 +489,24 @@ const NewsListPage = () => {
                         )}
                         
                         {/* Category Badge */}
-                        {item.kategori && (
-                          <div className="absolute top-3 left-3">
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold shadow-lg ${getCategoryColor(item.kategori)}`}>
-                              {item.kategori}
-                            </span>
+                        {(item.kategori || item.subKategori) && (
+                          <div className="absolute top-3 left-3 space-y-1">
+                            {item.kategori && (
+                              <span className={`block px-3 py-1 rounded-full text-xs font-bold shadow-lg ${getCategoryColor(item.kategori, item.subKategori)}`}>
+                                {item.kategori}
+                              </span>
+                            )}
+                            {item.subKategori && (
+                              <span className={`block px-2 py-1 rounded-full text-xs font-semibold shadow-md bg-white/90 ${
+                                item.subKategori === 'KUP' ? 'text-yellow-700' :
+                                item.subKategori === 'PPh' ? 'text-indigo-700' :
+                                item.subKategori === 'PPN' ? 'text-pink-700' :
+                                item.subKategori === 'Coretax' ? 'text-orange-700' :
+                                'text-gray-700'
+                              }`}>
+                                {item.subKategori}
+                              </span>
+                            )}
                           </div>
                         )}
 

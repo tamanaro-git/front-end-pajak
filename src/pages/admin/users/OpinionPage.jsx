@@ -9,6 +9,9 @@ const OpinionPage = () => {
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState({ show: false, type: "", message: "" });
   
+  // User data from localStorage or context
+  const [currentUser, setCurrentUser] = useState(null);
+  
   // Modal states
   const [showModal, setShowModal] = useState(false);
   const [selectedOpinion, setSelectedOpinion] = useState(null);
@@ -37,7 +40,20 @@ const OpinionPage = () => {
         ...filters
       };
       
-      const response = await opinionService.getAllOpinions(params);
+      let response;
+      
+      // Check if user is super-admin or regular user
+      if (currentUser?.role === 'super-admin') {
+        // Super-admin sees all opinions
+        response = await opinionService.getAllOpinions(params);
+      } else {
+        // Regular user sees only their own opinions
+        const userId = currentUser?.id;
+        if (!userId) {
+          throw new Error('User ID not found');
+        }
+        response = await opinionService.getOpinionsByUser(userId, params);
+      }
       
       if (response.status === 'success') {
         setOpinions(response.data.opinions);
@@ -54,10 +70,28 @@ const OpinionPage = () => {
     }
   };
 
+  // Get current user from localStorage on component mount
   useEffect(() => {
-    fetchOpinions();
+    try {
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        const user = JSON.parse(userData);
+        setCurrentUser(user);
+      }
+    } catch (error) {
+      console.error('Error getting user data:', error);
+      // Redirect to login if no valid user data
+      navigate('/login');
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    // Only fetch opinions when currentUser is available
+    if (currentUser) {
+      fetchOpinions();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pagination.page, filters]);
+  }, [pagination.page, filters, currentUser]);
 
   const showNotification = (type, message) => {
     setNotification({ show: true, type, message });
@@ -159,8 +193,19 @@ const OpinionPage = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-primary">Manajemen Opini</h1>
-          <p className="text-secondary mt-1">Kelola artikel opini dan perspektif</p>
+          <h1 className="text-3xl font-bold text-primary">
+            {currentUser?.role === 'super-admin' ? 'Manajemen Opini' : 'Opini Saya'}
+          </h1>
+          <p className="text-secondary mt-1">
+            {currentUser?.role === 'super-admin' 
+              ? 'Kelola semua artikel opini dan perspektif' 
+              : 'Kelola artikel opini dan perspektif Anda'}
+          </p>
+          {currentUser?.role !== 'super-admin' && (
+            <p className="text-xs text-gray-500 mt-1">
+              👤 {currentUser?.fullName || 'User'} | 🎭 {currentUser?.role || 'user'}
+            </p>
+          )}
         </div>
         <button
           onClick={() => navigate('/admin/opinions/add')}
@@ -285,6 +330,11 @@ const OpinionPage = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                         <span>{opinion.author?.fullName || 'Unknown'}</span>
+                        {currentUser?.role === 'super-admin' && opinion.author?.role && (
+                          <span className="ml-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
+                            {opinion.author.role}
+                          </span>
+                        )}
                       </span>
                       <span className="flex items-center space-x-1">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -318,8 +368,8 @@ const OpinionPage = () => {
 
                   {/* Actions */}
                   <div className="flex items-center space-x-2 shrink-0">
-                    {/* Submit to Review Button (only for draft status) */}
-                    {opinion.status === 'draft' && (
+                    {/* Submit to Review Button (only for draft status and own content) */}
+                    {opinion.status === 'draft' && (currentUser?.role === 'super-admin' || opinion.authorId === currentUser?.id) && (
                       <button
                         onClick={() => handleSubmitToReview(opinion.id, opinion.judul)}
                         className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
@@ -331,25 +381,38 @@ const OpinionPage = () => {
                       </button>
                     )}
                     
-                    <button
-                      onClick={() => navigate(`/admin/opinions/edit/${opinion.id}`)}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      title="Edit Opinion"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </button>
+                    {/* Edit Button (only for own content or super-admin) */}
+                    {(currentUser?.role === 'super-admin' || opinion.authorId === currentUser?.id) && (
+                      <button
+                        onClick={() => navigate(`/admin/opinions/edit/${opinion.id}`)}
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Edit Opinion"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                    )}
                     
-                    <button
-                      onClick={() => handleDelete(opinion)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Delete Opinion"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
+                    {/* Delete Button (only for own content or super-admin) */}
+                    {(currentUser?.role === 'super-admin' || opinion.authorId === currentUser?.id) && (
+                      <button
+                        onClick={() => handleDelete(opinion)}
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Delete Opinion"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    )}
+
+                    {/* View Only indicator for super-admin viewing others' content */}
+                    {currentUser?.role === 'super-admin' && opinion.authorId !== currentUser?.id && (
+                      <div className="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-semibold">
+                        👁️ View Only
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

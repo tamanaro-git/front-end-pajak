@@ -15,9 +15,6 @@ const NavbarHome = () => {
       const token = localStorage.getItem('token');
       const userStr = localStorage.getItem('user');
       
-      console.log('Token:', token); // Debug
-      console.log('User string:', userStr); // Debug
-      
       if (token && userStr) {
         try {
           const user = JSON.parse(userStr);
@@ -43,6 +40,39 @@ const NavbarHome = () => {
     window.addEventListener('storage', checkAuth);
     return () => window.removeEventListener('storage', checkAuth);
   }, []);
+
+  // Function to get dashboard URL based on user role
+  const getDashboardUrl = () => {
+    const userStr = localStorage.getItem('user');
+    if (!userStr) return '/login';
+    
+    try {
+      const user = JSON.parse(userStr);
+      const role = user.role;
+      
+      // Route based on role
+      if (role === 'user') {
+        return '/admin/opinions';
+      } else if (role === 'super-admin') {
+        return '/admin/dashboard';
+      } else if (role === 'admin-learning') {
+        return '/admin/books';
+      } else if (role === 'admin-news') {
+        return '/admin/users-news';
+      } else if (role === 'journalist') {
+        return '/admin/news';
+      } else if (role === 'editor-journalist') {
+        return '/admin/verifications/news';
+      } else if (role === 'editor-opinion') {
+        return '/admin/verifications/opinions';
+      } else {
+        return '/admin/opinions'; // Default for unknown roles
+      }
+    } catch (error) {
+      console.error('Error parsing user data:', error);
+      return '/login';
+    }
+  };
 
   useEffect(() => {
     // Close user menu when clicking outside
@@ -97,10 +127,10 @@ const NavbarHome = () => {
         <div className="hidden lg:flex items-center space-x-8">
           <Link to="/" className="hover:text-secondary">Beranda</Link>
                     <a href="/learning" target="_blank" className="py-2 hover:text-secondary" onClick={toggleMobileMenu}>
-              Pembelajaran
+              Learning
             </a>
             <a href="/news" target="_blank" className="py-2 hover:text-secondary" onClick={toggleMobileMenu}>
-              Sorotan
+              Spotlight
             </a>
         </div>
 
@@ -128,7 +158,7 @@ const NavbarHome = () => {
               {userMenuOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50">
                   <Link
-                    to="/admin/dashboard"
+                    to={getDashboardUrl()}
                     className="block px-4 py-2 text-gray-800 hover:bg-gray-100 transition-colors"
                     onClick={() => setUserMenuOpen(false)}
                   >
@@ -160,9 +190,6 @@ const NavbarHome = () => {
                 Masuk
               </Link>
 
-              <Link to="/register" className="bg-primary hover:bg-opacity-80 text-white px-6 py-2 rounded-full font-medium transition-colors">
-                Daftar Sekarang
-              </Link>
             </>
           )}
         </div>
@@ -177,10 +204,10 @@ const NavbarHome = () => {
               Beranda
             </Link>
             <a href="/learning" target="_blank" className="py-2 hover:text-secondary" onClick={toggleMobileMenu}>
-              Pembelajaran
+              Learning
             </a>
             <a href="/news" target="_blank" className="py-2 hover:text-secondary" onClick={toggleMobileMenu}>
-              Sorotan
+              Spotlight
             </a>
 
             <div className="pt-4 border-t border-white/20 flex flex-col space-y-3">
@@ -196,7 +223,7 @@ const NavbarHome = () => {
                     <span className="font-medium">{userName}</span>
                   </div>
                   <Link
-                    to="/admin/dashboard"
+                    to={getDashboardUrl()}
                     className="bg-neutral-light text-primary-dark hover:bg-opacity-90 px-6 py-3 rounded-full font-medium transition-colors w-full text-center"
                     onClick={toggleMobileMenu}
                   >
@@ -218,13 +245,6 @@ const NavbarHome = () => {
                     onClick={toggleMobileMenu}
                   >
                     Masuk
-                  </Link>
-                  <Link
-                    to="/register"
-                    className="bg-primary hover:bg-opacity-80 text-white px-6 py-3 rounded-full font-medium transition-colors w-full text-center"
-                    onClick={toggleMobileMenu}
-                  >
-                    Daftar Sekarang
                   </Link>
                 </>
               )}
