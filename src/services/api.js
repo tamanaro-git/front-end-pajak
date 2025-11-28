@@ -4,6 +4,7 @@ import axios from 'axios';
 // Create axios instance
 const api = axios.create({
   baseURL: 'https://backend.pajax.id/api', // Replace with your API base URL
+  // baseURL: 'http://localhost:3000/api', // Replace with your API base URL
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

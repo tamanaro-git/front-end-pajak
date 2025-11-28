@@ -28,7 +28,17 @@ const LearningDetailPage = () => {
       
       if (response.status === 'success') {
         setBook(response.data.book);
-        setChapters(response.data.chapters || []);
+        
+        // Sort chapters by orderIndex
+        const sortedChapters = (response.data.chapters || []).map(chapter => ({
+          ...chapter,
+          // Sort subchapters by orderIndex
+          subchapters: (chapter.subchapters || []).sort((a, b) => 
+            (a.orderIndex || 0) - (b.orderIndex || 0)
+          )
+        })).sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
+        
+        setChapters(sortedChapters);
       }
     } catch (error) {
       console.error('Error fetching book data:', error);

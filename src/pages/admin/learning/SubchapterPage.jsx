@@ -124,6 +124,57 @@ const SubchapterPage = () => {
     setDraggedItem(null);
   };
 
+  // Function to detect if content contains images or YouTube embeds
+  const hasMediaContent = (content) => {
+    if (!content) return false;
+    
+    // Check for image tags
+    const hasImage = /<img[^>]*>/i.test(content);
+    
+    // Check for YouTube embeds (iframe with youtube src)
+    const hasYouTube = /<iframe[^>]*youtube[^>]*>/i.test(content) || 
+                      /<iframe[^>]*youtu\.be[^>]*>/i.test(content) ||
+                      /youtube\.com\/embed/i.test(content) ||
+                      /youtu\.be/i.test(content);
+    
+    return hasImage || hasYouTube;
+  };
+
+  // Function to get media preview text
+  const getMediaPreview = (content) => {
+    if (!content) return '';
+    
+    let mediaTypes = [];
+    
+    // Check for images
+    if (/<img[^>]*>/i.test(content)) {
+      const imageCount = (content.match(/<img[^>]*>/gi) || []).length;
+      mediaTypes.push(`${imageCount} gambar`);
+    }
+    
+    // Check for YouTube videos
+    if (/<iframe[^>]*youtube[^>]*>/i.test(content) || 
+        /<iframe[^>]*youtu\.be[^>]*>/i.test(content) ||
+        /youtube\.com\/embed/i.test(content) ||
+        /youtu\.be/i.test(content)) {
+      const videoCount = (content.match(/<iframe[^>]*youtu[^>]*>/gi) || []).length;
+      mediaTypes.push(`${videoCount} video YouTube`);
+    }
+    
+    // Extract plain text for additional context
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = content;
+    const plainText = tempDiv.textContent || tempDiv.innerText || '';
+    const textPreview = plainText.substring(0, 100);
+    
+    let preview = `Konten mengandung: ${mediaTypes.join(', ')}`;
+    if (textPreview.trim()) {
+      preview += ` | ${textPreview.trim()}${plainText.length > 100 ? '...' : ''}`;
+    }
+    
+    return preview;
+  };
+
   return (
     <div className="space-y-6">
       {/* Notification */}
@@ -279,16 +330,45 @@ const SubchapterPage = () => {
                         </svg>
                         <div className="flex-1">
                           <p className="text-sm font-semibold text-blue-800 mb-1">Peraturan Terkait:</p>
-                          <p className="text-sm text-blue-700">{subchapter.regulation}</p>
+                          <p className="text-sm text-blue-700" dangerouslySetInnerHTML={{ __html: subchapter.regulation }} />
                         </div>
                       </div>
                     </div>
                   )}
                   {subchapter.content && (
-                    <div 
-                      className="text-secondary text-sm line-clamp-3 prose prose-sm max-w-none"
-                      dangerouslySetInnerHTML={{ __html: subchapter.content }}
-                    />
+                    <div className="text-secondary text-sm">
+                      {hasMediaContent(subchapter.content) ? (
+                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 flex items-center space-x-3">
+                          <div className="flex items-center space-x-2 text-gray-600">
+                            {/<img[^>]*>/i.test(subchapter.content) && (
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                            )}
+                            {(/<iframe[^>]*youtube[^>]*>/i.test(subchapter.content) || 
+                              /<iframe[^>]*youtu\.be[^>]*>/i.test(subchapter.content) ||
+                              /youtube\.com\/embed/i.test(subchapter.content) ||
+                              /youtu\.be/i.test(subchapter.content)) && (
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-700">{getMediaPreview(subchapter.content)}</p>
+                          </div>
+                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                            Media Content
+                          </span>
+                        </div>
+                      ) : (
+                        <div 
+                          className="line-clamp-3 prose prose-sm max-w-none"
+                          dangerouslySetInnerHTML={{ __html: subchapter.content }}
+                        />
+                      )}
+                    </div>
                   )}
                   <div className="flex items-center space-x-4 text-sm text-secondary mt-3">
                     <span>{new Date(subchapter.createdAt).toLocaleDateString('id-ID')}</span>

@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import bookService from "../../services/bookService";
+import NavbarHome from "../../components/home/NavbarHome";
 
 const LearningPage = () => {
   const navigate = useNavigate();
@@ -53,7 +54,9 @@ const LearningPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">{/* ...existing code... */}
+    <>
+    <NavbarHome />
+    <div className="min-h-screen mt-10 bg-white">{/* ...existing code... */}
       {/* Hero Section */}
       <section className="relative bg-primary-dark text-white py-20 overflow-hidden">
         {/* Background Decorative Icons */}
@@ -114,7 +117,7 @@ const LearningPage = () => {
                   value={searchQuery}
                   onChange={handleSearchChange}
                   placeholder="Cari buku pembelajaran (contoh: Pajak Penghasilan, PPh, PPN...)"
-                  className="w-full px-6 py-4 pr-32 text-primary-dark bg-yellow-400 placeholder-primary-dark/70 rounded-full border-2 border-yellow-500 focus:border-yellow-300 focus:outline-none shadow-lg text-base font-semibold"
+                  className="w-full px-6 py-4 pr-32 text-primary-dark bg-white placeholder-primary-dark/70 rounded-full border-2  focus:border-yellow-300 focus:outline-none shadow-lg text-base font-semibold"
                 />
                 <div className="absolute right-2 flex items-center space-x-2">
                   {searchQuery && (
@@ -331,38 +334,101 @@ const LearningPage = () => {
 
             {/* Pagination */}
             {pagination.totalPages > 1 && (
-              <div className="flex justify-center items-center mt-12 space-x-2">
-                <button
-                  onClick={() => fetchBooks(pagination.page - 1, searchQuery)}
-                  disabled={pagination.page === 1}
-                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-neutral-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  Previous
-                </button>
-                
-                <div className="flex space-x-2">
-                  {[...Array(pagination.totalPages)].map((_, i) => (
-                    <button
-                      key={i + 1}
-                      onClick={() => fetchBooks(i + 1, searchQuery)}
-                      className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                        pagination.page === i + 1
-                          ? 'bg-primary text-white'
-                          : 'border border-gray-300 hover:bg-neutral-light'
-                      }`}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
+              <div className="flex flex-col sm:flex-row justify-center items-center mt-12 gap-4">
+                {/* Page Info for Mobile */}
+                <div className="text-sm text-secondary sm:hidden">
+                  Halaman {pagination.page} dari {pagination.totalPages}
                 </div>
 
-                <button
-                  onClick={() => fetchBooks(pagination.page + 1, searchQuery)}
-                  disabled={pagination.page === pagination.totalPages}
-                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-neutral-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  Next
-                </button>
+                <div className="flex items-center space-x-2">
+                  {/* Previous Button */}
+                  <button
+                    onClick={() => fetchBooks(pagination.page - 1, searchQuery)}
+                    disabled={pagination.page === 1}
+                    className="flex items-center space-x-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg hover:bg-neutral-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                    <span className="hidden sm:inline">Previous</span>
+                  </button>
+                  
+                  {/* Page Numbers */}
+                  <div className="flex space-x-1 sm:space-x-2">
+                    {/* First Page */}
+                    {pagination.page > 3 && (
+                      <>
+                        <button
+                          onClick={() => fetchBooks(1, searchQuery)}
+                          className="px-3 sm:px-4 py-2 rounded-lg border border-gray-300 hover:bg-neutral-light transition-colors"
+                        >
+                          1
+                        </button>
+                        {pagination.page > 4 && (
+                          <span className="px-2 py-2 text-gray-400">...</span>
+                        )}
+                      </>
+                    )}
+
+                    {/* Pages around current */}
+                    {[...Array(pagination.totalPages)].map((_, i) => {
+                      const pageNum = i + 1;
+                      const showPage = 
+                        pageNum === pagination.page ||
+                        (pageNum >= pagination.page - 1 && pageNum <= pagination.page + 1) ||
+                        (pagination.page <= 2 && pageNum <= 3) ||
+                        (pagination.page >= pagination.totalPages - 1 && pageNum >= pagination.totalPages - 2);
+
+                      if (!showPage) return null;
+
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => fetchBooks(pageNum, searchQuery)}
+                          className={`px-3 sm:px-4 py-2 rounded-lg font-semibold transition-colors ${
+                            pagination.page === pageNum
+                              ? 'bg-primary text-white shadow-md'
+                              : 'border border-gray-300 hover:bg-neutral-light'
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    })}
+
+                    {/* Last Page */}
+                    {pagination.page < pagination.totalPages - 2 && (
+                      <>
+                        {pagination.page < pagination.totalPages - 3 && (
+                          <span className="px-2 py-2 text-gray-400">...</span>
+                        )}
+                        <button
+                          onClick={() => fetchBooks(pagination.totalPages, searchQuery)}
+                          className="px-3 sm:px-4 py-2 rounded-lg border border-gray-300 hover:bg-neutral-light transition-colors"
+                        >
+                          {pagination.totalPages}
+                        </button>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Next Button */}
+                  <button
+                    onClick={() => fetchBooks(pagination.page + 1, searchQuery)}
+                    disabled={pagination.page === pagination.totalPages}
+                    className="flex items-center space-x-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg hover:bg-neutral-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <span className="hidden sm:inline">Next</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Page Info for Desktop */}
+                <div className="hidden sm:block text-sm text-secondary">
+                  Menampilkan {((pagination.page - 1) * pagination.limit) + 1}-{Math.min(pagination.page * pagination.limit, pagination.total)} dari {pagination.total} buku
+                </div>
               </div>
             )}
           </>
@@ -385,6 +451,7 @@ const LearningPage = () => {
         `}</style>
       </section>
     </div>
+    </>
   );
 };
 

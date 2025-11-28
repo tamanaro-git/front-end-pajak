@@ -225,6 +225,7 @@ const BookPage = () => {
                     <th className="px-6 py-4 text-left">Judul</th>
                     <th className="px-6 py-4 text-left">Author</th>
                     <th className="px-6 py-4 text-left">Chapters</th>
+                    <th className="px-6 py-4 text-left">Sub Chapters</th>
                     <th className="px-6 py-4 text-left">Created</th>
                     <th className="px-6 py-4 text-center">Actions</th>
                   </tr>
@@ -244,7 +245,12 @@ const BookPage = () => {
                       <td className="px-6 py-4 text-secondary">{book.author || '-'}</td>
                       <td className="px-6 py-4">
                         <span className="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
-                          {book.chapters?.length || 0} chapters
+                          {book.totalChapters || 0} chapters
+                        </span>
+                      </td>
+                                           <td className="px-6 py-4">
+                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                          {book.totalSubchapters || 0} Sub Chapters
                         </span>
                       </td>
                       <td className="px-6 py-4 text-secondary text-sm">

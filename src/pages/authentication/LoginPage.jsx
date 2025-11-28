@@ -84,15 +84,6 @@ const LoginPage = () => {
             </div>
           </div>
 
-          {/* Admin Login Link */}
-          <div className="mt-6 text-center">
-            <p className="text-secondary text-sm">
-              Admin?{" "}
-              <a href="/login-admin" className="font-semibold text-primary hover:text-primary-dark">
-                Masuk di sini
-              </a>
-            </p>
-          </div>
         </div>
 
         {/* Footer */}
