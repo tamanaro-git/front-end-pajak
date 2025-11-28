@@ -78,6 +78,17 @@ const AddNewsPage = () => {
     tags: []
   });
 
+  // Function to generate slug from title
+  const generateSlug = (title) => {
+    return title
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '') // Remove special characters except spaces and hyphens
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+      .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+  };
+
   // Kategori dan Sub-kategori mapping
   const kategoriOptions = ["Perpajakan", "Ekonomi", "Perspective"];
   
@@ -124,6 +135,10 @@ const AddNewsPage = () => {
     // Reset subKategori when kategori changes
     if (name === 'kategori') {
       setFormData({ ...formData, [name]: value, subKategori: "" });
+    } else if (name === 'title') {
+      // Auto-generate slug when title changes
+      const slug = generateSlug(value);
+      setFormData({ ...formData, title: value, artikelId: slug });
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -131,9 +146,15 @@ const AddNewsPage = () => {
 
   const handleSubmit = async (actionType) => {
     // Validate required fields
-    if (!formData.artikelId || !formData.title) {
-      showNotification("error", "Artikel ID dan Judul wajib diisi!");
+    if (!formData.title) {
+      showNotification("error", "Judul artikel wajib diisi!");
       return;
+    }
+
+    // Auto-generate slug if not present
+    if (!formData.artikelId && formData.title) {
+      const slug = generateSlug(formData.title);
+      setFormData(prev => ({ ...prev, artikelId: slug }));
     }
 
     setLoading(true);
@@ -263,27 +284,8 @@ const AddNewsPage = () => {
 
       {/* Form */}
       <div className="bg-white rounded-xl shadow-md p-6 space-y-6">
-        {/* Artikel ID & Title */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-semibold text-primary mb-2">
-              Artikel ID <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              name="artikelId"
-              value={formData.artikelId}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none"
-              placeholder="Contoh: ART-2024-001"
-              required
-              maxLength={100}
-            />
-            <p className="text-xs text-secondary mt-1">
-              ID unik untuk artikel (tidak bisa diubah setelah dibuat)
-            </p>
-          </div>
-          
+        {/* Title & Generated Slug */}
+        <div className="grid grid-cols-1 gap-4">
           <div>
             <label className="block text-sm font-semibold text-primary mb-2">
               Judul Artikel <span className="text-red-500">*</span>
@@ -299,6 +301,26 @@ const AddNewsPage = () => {
               maxLength={255}
             />
           </div>
+          
+          {/* Auto-generated Slug Preview */}
+          {formData.title && (
+            <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-lg">
+              <div className="flex items-start space-x-3">
+                <svg className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+                <div className="flex-1">
+                  <h4 className="font-bold text-blue-800 mb-1 text-sm">URL Slug (Auto-generated)</h4>
+                  <code className="text-sm text-blue-700 bg-blue-100 px-2 py-1 rounded font-mono">
+                    {formData.artikelId}
+                  </code>
+                  <p className="text-xs text-blue-600 mt-1">
+                    Slug akan digunakan sebagai URL artikel dan ID unik
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Category & Subcategory */}

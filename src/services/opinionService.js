@@ -36,7 +36,7 @@ const opinionService = {
     const response = await api.put(`/opinions/${id}`, opinionData);
     return response.data;
   },
-
+  
   // Update opinion status
   updateOpinionStatus: async (id, status) => {
     const response = await api.put(`/opinions/${id}/status`, { status });

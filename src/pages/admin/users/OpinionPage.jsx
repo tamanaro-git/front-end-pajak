@@ -1,4 +1,3 @@
-// filepath: /home/zarif/Project/taxmin/front-end/src/pages/admin/users/OpinionPage.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import opinionService from "../../../services/opinionService";
@@ -97,6 +96,19 @@ const OpinionPage = () => {
       }
     } catch (error) {
       showNotification("error", error.message || "Gagal menghapus opini");
+    }
+  };
+
+  // Handle submit to review (draft -> pending)
+  const handleSubmitToReview = async (opinionId, opinionTitle) => {
+    try {
+      const response = await opinionService.updateOpinionStatus(opinionId, 'pending');
+      if (response.status === 'success') {
+        showNotification("success", `Opini "${opinionTitle}" berhasil dikirim untuk review!`);
+        fetchOpinions(); // Refresh data
+      }
+    } catch (error) {
+      showNotification("error", error.message || "Gagal mengirim opini untuk review");
     }
   };
 
@@ -306,6 +318,19 @@ const OpinionPage = () => {
 
                   {/* Actions */}
                   <div className="flex items-center space-x-2 shrink-0">
+                    {/* Submit to Review Button (only for draft status) */}
+                    {opinion.status === 'draft' && (
+                      <button
+                        onClick={() => handleSubmitToReview(opinion.id, opinion.judul)}
+                        className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                        title="Submit untuk Review"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                        </svg>
+                      </button>
+                    )}
+                    
                     <button
                       onClick={() => navigate(`/admin/opinions/edit/${opinion.id}`)}
                       className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"

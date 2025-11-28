@@ -71,7 +71,8 @@ const AddOpinionPage = () => {
     judul: "",
     kategori: "",
     isiOpini: "",
-    tags: []
+    tags: [],
+    status: "draft" // Default status
   });
 
   // TipTap Editor
@@ -116,7 +117,13 @@ const AddOpinionPage = () => {
     setLoading(true);
 
     try {
-      const response = await opinionService.createOpinion(formData);
+      // Determine status based on action type
+      const status = actionType === 'draft' ? 'draft' : 'pending';
+      
+      const response = await opinionService.createOpinion({
+        ...formData,
+        status: status // Explicitly set status
+      });
       
       if (response.status === 'success') {
         const message = actionType === 'draft' 
