@@ -15,7 +15,7 @@ const LearningSection = () => {
   const fetchBooks = async () => {
     try {
       setLoading(true);
-      const response = await bookService.getAllBooks({
+      const response = await bookService.getAllBooksUpdate({
         page: 1,
         limit: 3 // Only show 3 books in home section
       });

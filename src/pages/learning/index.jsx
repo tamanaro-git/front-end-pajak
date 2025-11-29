@@ -16,20 +16,31 @@ const LearningPage = () => {
   }, []);
 
   const fetchBooks = async (page = 1, search = "") => {
+    console.log('Fetching books for page:', page, 'search:', search);
     setLoading(true);
     try {
       const response = await bookService.getAllBooks({
         page,
-        limit: 9,
+        limit: 6,
         search: search || searchQuery
       });
       
+      console.log('API Response:', response);
+      
       if (response.status === 'success') {
         setBooks(response.data.books || []);
-        setPagination(response.data.pagination || { total: 0, page: 1, limit: 9, totalPages: 0 });
+        // Make sure pagination state includes the correct current page
+        const paginationData = response.data.pagination || { total: 0, page: page, limit: 9, totalPages: 0 };
+        console.log('Setting pagination:', paginationData);
+        setPagination({
+          ...paginationData,
+          page: page // Ensure the current page is set correctly
+        });
       }
     } catch (error) {
       console.error('Error fetching books:', error);
+      setBooks([]);
+      setPagination({ total: 0, page: page, limit: 9, totalPages: 0 });
     } finally {
       setLoading(false);
     }
@@ -37,6 +48,7 @@ const LearningPage = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
+    setPagination(prev => ({ ...prev, page: 1 })); // Reset to page 1 on search
     fetchBooks(1, searchQuery);
   };
 
@@ -46,7 +58,19 @@ const LearningPage = () => {
 
   const handleClearSearch = () => {
     setSearchQuery("");
+    setPagination(prev => ({ ...prev, page: 1 })); // Reset to page 1 on clear
     fetchBooks(1, "");
+  };
+
+  const handlePageChange = (newPage) => {
+    console.log('Page change requested:', newPage, 'Current page:', pagination.page, 'Total pages:', pagination.totalPages);
+    
+    if (newPage >= 1 && newPage <= pagination.totalPages && newPage !== pagination.page) {
+      console.log('Changing page to:', newPage);
+      fetchBooks(newPage, searchQuery);
+      // Scroll to top when page changes
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handleBookClick = (bookId) => {
@@ -343,7 +367,7 @@ const LearningPage = () => {
                 <div className="flex items-center space-x-2">
                   {/* Previous Button */}
                   <button
-                    onClick={() => fetchBooks(pagination.page - 1, searchQuery)}
+                    onClick={() => handlePageChange(pagination.page - 1)}
                     disabled={pagination.page === 1}
                     className="flex items-center space-x-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg hover:bg-neutral-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
@@ -359,7 +383,7 @@ const LearningPage = () => {
                     {pagination.page > 3 && (
                       <>
                         <button
-                          onClick={() => fetchBooks(1, searchQuery)}
+                          onClick={() => handlePageChange(1)}
                           className="px-3 sm:px-4 py-2 rounded-lg border border-gray-300 hover:bg-neutral-light transition-colors"
                         >
                           1
@@ -384,7 +408,7 @@ const LearningPage = () => {
                       return (
                         <button
                           key={pageNum}
-                          onClick={() => fetchBooks(pageNum, searchQuery)}
+                          onClick={() => handlePageChange(pageNum)}
                           className={`px-3 sm:px-4 py-2 rounded-lg font-semibold transition-colors ${
                             pagination.page === pageNum
                               ? 'bg-primary text-white shadow-md'
@@ -403,7 +427,7 @@ const LearningPage = () => {
                           <span className="px-2 py-2 text-gray-400">...</span>
                         )}
                         <button
-                          onClick={() => fetchBooks(pagination.totalPages, searchQuery)}
+                          onClick={() => handlePageChange(pagination.totalPages)}
                           className="px-3 sm:px-4 py-2 rounded-lg border border-gray-300 hover:bg-neutral-light transition-colors"
                         >
                           {pagination.totalPages}
@@ -414,7 +438,7 @@ const LearningPage = () => {
 
                   {/* Next Button */}
                   <button
-                    onClick={() => fetchBooks(pagination.page + 1, searchQuery)}
+                    onClick={() => handlePageChange(pagination.page + 1)}
                     disabled={pagination.page === pagination.totalPages}
                     className="flex items-center space-x-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg hover:bg-neutral-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >

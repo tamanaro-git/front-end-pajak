@@ -78,9 +78,12 @@ const AddOpinionPage = () => {
 
   // Kategori options
   const kategoriOptions = [
-    "Ekonomi & Bisnis",
-    "Investasi", 
-    "Perpajakan",
+    "Ekonomi",
+    "Bisnis dan Investasi",
+    "PPh",
+    "PPN", 
+    "KUP",
+    "Coretax",
     "Kepabeanan & Cukai"
   ];
 

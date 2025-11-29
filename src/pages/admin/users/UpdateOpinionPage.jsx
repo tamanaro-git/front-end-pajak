@@ -301,15 +301,21 @@ const UpdateOpinionPage = () => {
             <label className="block text-sm font-semibold text-primary mb-2">
               Kategori
             </label>
-            <input
-              type="text"
+            <select
               name="kategori"
               value={formData.kategori}
               onChange={handleChange}
               className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none"
-              placeholder="Contoh: Kebijakan Pajak"
-              maxLength={100}
-            />
+            >
+              <option value="">Pilih Kategori</option>
+              <option value="Ekonomi">Ekonomi</option>
+              <option value="Bisnis dan Investasi">Bisnis dan Investasi</option>
+              <option value="PPh">PPh</option>
+              <option value="PPN">PPN</option>
+              <option value="KUP">KUP</option>
+              <option value="Coretax">Coretax</option>
+              <option value="Kepabeanan & Cukai">Kepabeanan & Cukai</option>
+            </select>
           </div>
         </div>
 

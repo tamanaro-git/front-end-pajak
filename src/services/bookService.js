@@ -4,21 +4,40 @@ const bookService = {
   // Get all books with pagination and search
   getAllBooks: async (params = {}) => {
     try {
-      const { page = 1, limit = 10, search = '' } = params;
-      const queryParams = new URLSearchParams({
-        page: page.toString(),
-        limit: limit.toString(),
-        ...(search && { search })
-      });
+      const queryParams = new URLSearchParams();
       
-      const response = await api.get(`/books?${queryParams}`);
+      if (params.page) queryParams.append('page', params.page);
+      if (params.limit) queryParams.append('limit', params.limit);
+      if (params.search) queryParams.append('search', params.search);
+      
+      const queryString = queryParams.toString();
+      const url = `/books${queryString ? `?${queryString}` : ''}`;
+      
+      const response = await api.get(url);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: error.message };
+    }
+  },
+  getAllBooksUpdate: async (params = {}) => {
+    try {
+      const queryParams = new URLSearchParams();
+      
+      if (params.page) queryParams.append('page', params.page);
+      if (params.limit) queryParams.append('limit', params.limit);
+      if (params.search) queryParams.append('search', params.search);
+      
+      const queryString = queryParams.toString();
+      const url = `/books/update${queryString ? `?${queryString}` : ''}`;
+      
+      const response = await api.get(url);
       return response.data;
     } catch (error) {
       throw error.response?.data || { message: error.message };
     }
   },
 
-  // Get book by ID with chapters
+  // Get book by ID
   getBookById: async (id) => {
     try {
       const response = await api.get(`/books/${id}`);
@@ -28,7 +47,7 @@ const bookService = {
     }
   },
 
-  // Create new book (Admin/Manager only)
+  // Create new book
   createBook: async (bookData) => {
     try {
       const response = await api.post('/books', bookData);
@@ -38,7 +57,7 @@ const bookService = {
     }
   },
 
-  // Update book (Admin/Manager only)
+  // Update book
   updateBook: async (id, bookData) => {
     try {
       const response = await api.put(`/books/${id}`, bookData);
@@ -48,7 +67,7 @@ const bookService = {
     }
   },
 
-  // Delete book (Admin only)
+  // Delete book
   deleteBook: async (id) => {
     try {
       const response = await api.delete(`/books/${id}`);
@@ -56,7 +75,7 @@ const bookService = {
     } catch (error) {
       throw error.response?.data || { message: error.message };
     }
-  },
+  }
 };
 
 export default bookService;

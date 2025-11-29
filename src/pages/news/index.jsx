@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import newsService from "../../services/newsService";
+import opinionService from "../../services/opinionService";
 
 const NewsListPage = () => {
   const navigate = useNavigate();
@@ -54,23 +55,67 @@ const NewsListPage = () => {
         status: 'published'
       };
 
-      // If subcategory is selected, use only subcategory filter
-      if (selectedSubCategory) {
-        params.subKategori = selectedSubCategory;
-        // Don't add kategori when subcategory is selected
-      } else if (selectedCategory) {
-        // Only add main category if no subcategory is selected
-        params.kategori = selectedCategory;
-      }
+      // Determine if we should use opinion API or news API
+      let isOpinionRequest = false;
+      let apiResponse;
 
-      if (searchQuery) {
-        params.search = searchQuery;
-      }
+      if (selectedCategory === 'Perspective') {
+        // For Perspective category, use opinion API
+        isOpinionRequest = true;
+        
+        if (selectedSubCategory) {
+          // Use subcategory as kategori for opinions
+          params.kategori = selectedSubCategory;
+          delete params.status; // opinions might not use 'published' status
+        }
 
-      const response = await newsService.getAllNews(params);
+        if (searchQuery) {
+          params.search = searchQuery;
+        }
+
+        apiResponse = await opinionService.getAllOpinions(params);
+      } else {
+        // For other categories, use news API
+        if (selectedSubCategory) {
+          params.subKategori = selectedSubCategory;
+          // Don't add kategori when subcategory is selected
+        } else if (selectedCategory) {
+          // Only add main category if no subcategory is selected
+          params.kategori = selectedCategory;
+        }
+
+        if (searchQuery) {
+          params.search = searchQuery;
+        }
+
+        apiResponse = await newsService.getAllNews(params);
+      }
       
-      if (response.status === 'success') {
-        let newsData = response.data.news || [];
+      if (apiResponse.status === 'success') {
+        let newsData;
+        
+        if (isOpinionRequest) {
+          // Map opinion data to match news structure
+          newsData = (apiResponse.data.opinions || []).map(opinion => ({
+            id: opinion.id,
+            artikelId: opinion.id, // Use opinion id as article id
+            title: opinion.judul,
+            content: opinion.isiOpini,
+            fullContent: opinion.isiOpini,
+            image: opinion.images,
+            kategori: 'Perspective',
+            subKategori: opinion.kategori, // Opinion kategori becomes subcategory
+            author: { fullName: opinion.author?.fullName || 'Admin' },
+            views: opinion.views || 0,
+            likes: opinion.likes || 0,
+            shares: opinion.shares || 0,
+            publishedAt: opinion.publishedAt || opinion.createdAt,
+            createdAt: opinion.createdAt,
+            type: 'opinion' // Mark as opinion for different handling
+          }));
+        } else {
+          newsData = apiResponse.data.news || [];
+        }
         
         // Apply filter sorting
         if (activeFilter === 'latest') {
@@ -86,10 +131,12 @@ const NewsListPage = () => {
         }
         
         setNews(newsData);
-        setPagination(response.data.pagination || { total: 0, page: 1, limit: 9, totalPages: 0 });
+        setPagination(apiResponse.data.pagination || { total: 0, page: page, limit: 9, totalPages: 0 });
       }
     } catch (error) {
       console.error('Error fetching news:', error);
+      setNews([]);
+      setPagination({ total: 0, page: page, limit: 9, totalPages: 0 });
     } finally {
       setLoading(false);
     }
@@ -97,20 +144,53 @@ const NewsListPage = () => {
 
   const fetchTrendingNews = async () => {
     try {
-      const response = await newsService.getAllNews({
+      // Fetch both news and opinions for trending
+      const newsResponse = await newsService.getAllNews({
         page: 1,
-        limit: 5,
+        limit: 3,
         status: 'published'
       });
       
-      if (response.status === 'success') {
-        const sorted = (response.data.news || []).sort((a, b) => {
-          const scoreA = (a.views || 0) * 0.5 + (a.likes || 0) * 2 + (a.shares || 0) * 3;
-          const scoreB = (b.views || 0) * 0.5 + (b.likes || 0) * 2 + (b.shares || 0) * 3;
-          return scoreB - scoreA;
-        });
-        setTrendingNews(sorted.slice(0, 5));
+      const opinionResponse = await opinionService.getAllOpinions({
+        page: 1,
+        limit: 3
+      });
+      
+      let allItems = [];
+      
+      // Add news items
+      if (newsResponse.status === 'success') {
+        const newsItems = (newsResponse.data.news || []).map(item => ({
+          ...item,
+          type: 'news'
+        }));
+        allItems = allItems.concat(newsItems);
       }
+      
+      // Add opinion items
+      if (opinionResponse.status === 'success') {
+        const opinionItems = (opinionResponse.data.opinions || []).map(opinion => ({
+          id: opinion.id,
+          artikelId: opinion.id,
+          title: opinion.judul,
+          content: opinion.isiOpini,
+          views: opinion.views || 0,
+          likes: opinion.likes || 0,
+          shares: opinion.shares || 0,
+          publishedAt: opinion.publishedAt || opinion.createdAt,
+          type: 'opinion'
+        }));
+        allItems = allItems.concat(opinionItems);
+      }
+      
+      // Sort by trending score and take top 5
+      const sorted = allItems.sort((a, b) => {
+        const scoreA = (a.views || 0) * 0.5 + (a.likes || 0) * 2 + (a.shares || 0) * 3;
+        const scoreB = (b.views || 0) * 0.5 + (b.likes || 0) * 2 + (b.shares || 0) * 3;
+        return scoreB - scoreA;
+      });
+      
+      setTrendingNews(sorted.slice(0, 5));
     } catch (error) {
       console.error('Error fetching trending news:', error);
     }
@@ -121,8 +201,12 @@ const NewsListPage = () => {
     fetchNews(1);
   };
 
-  const handleNewsClick = (artikelId) => {
-    navigate(`/news/${artikelId}`);
+  const handleNewsClick = (artikelId, itemType) => {
+    if (itemType === 'opinion') {
+      navigate(`/opinions/${artikelId}`);
+    } else {
+      navigate(`/news/${artikelId}`);
+    }
   };
 
   const formatDate = (dateString) => {
@@ -412,7 +496,7 @@ const NewsListPage = () => {
                   {trendingNews.map((item, index) => (
                     <div
                       key={item.id}
-                      onClick={() => handleNewsClick(item.artikelId)}
+                      onClick={() => handleNewsClick(item.artikelId, item.type)}
                       className="flex space-x-3 cursor-pointer group"
                     >
                       <div className="flex-shrink-0">
@@ -488,7 +572,7 @@ const NewsListPage = () => {
                   {news.map((item) => (
                     <article
                       key={item.id}
-                      onClick={() => handleNewsClick(item.artikelId)}
+                      onClick={() => handleNewsClick(item.artikelId, item.type)}
                       className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer group"
                     >
                       {/* Image */}

@@ -311,7 +311,7 @@ const ProfilePage = () => {
       </div>
 
       {/* Change Password Section - Only for Super Admin */}
-      {user?.role === 'super-admin' && (
+      {user?.role === 'super-admin' || user?.role === 'admin-news' || user?.role === 'admin-learning' || user?.role === 'editor-journalist' || user?.role === 'editor-opinion' || user?.role === 'journalist' ? (
         <div className="bg-white rounded-xl shadow-md p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-3">
@@ -511,7 +511,7 @@ const ProfilePage = () => {
             </form>
           )}
         </div>
-      )}
+      ) : null}
 
       <style>{`
         @keyframes slide-in-right {

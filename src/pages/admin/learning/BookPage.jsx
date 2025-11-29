@@ -28,7 +28,7 @@ const BookPage = () => {
   const fetchBooks = async (page = 1, searchQuery = search) => {
     setLoading(true);
     try {
-      const response = await bookService.getAllBooks({
+      const response = await bookService.getAllBooksUpdate({
         page,
         limit: pagination.limit,
         search: searchQuery
