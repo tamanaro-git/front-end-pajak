@@ -329,7 +329,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                   {user?.name || "User"}
                 </p>
                 <p className="text-xs text-gray-300">
-                  {user?.email || "user@taxmin.id"}
+                  {user?.email || "user@pajax.id"}
                 </p>
                 {/* Role Badge */}
                 <span className="inline-block mt-1 px-2 py-0.5 bg-blue-500 text-white text-xs font-semibold rounded">
