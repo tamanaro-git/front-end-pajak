@@ -130,7 +130,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                 <div className="w-1 h-8 bg-blue-300 rounded"></div>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white">Taxmin.id</h1>
+                <h1 className="text-xl font-bold text-white">pajax.id</h1>
                 <p className="text-xs text-gray-300">Admin Panel</p>
               </div>
             </div>
